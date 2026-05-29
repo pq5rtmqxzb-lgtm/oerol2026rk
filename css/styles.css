@@ -149,13 +149,13 @@ button { font-family: inherit; }
 .hero__title .yellow { color: var(--sun); }
 .hero__dates { font-size: 14px; opacity: 0.9; }
 
-.countdown { display: flex; gap: 10px; margin-top: 18px; }
+.countdown { display: flex; gap: 8px; margin-top: 18px; }
 .cd-box {
-  flex: 1; background: rgba(255, 255, 255, 0.12);
+  flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.12);
   border-radius: 14px; padding: 10px 4px; text-align: center;
   backdrop-filter: blur(2px);
 }
-.cd-box .num { font-family: var(--display); font-size: 30px; line-height: 1; color: var(--sun); }
+.cd-box .num { font-family: var(--display); font-size: clamp(22px, 7vw, 30px); line-height: 1; color: var(--sun); }
 .cd-box .lbl { font-size: 10px; letter-spacing: 1px; opacity: 0.85; text-transform: uppercase; margin-top: 4px; }
 .hero__live {
   margin-top: 16px; font-size: 15px; font-weight: 700;
@@ -172,6 +172,23 @@ button { font-family: inherit; }
   70% { box-shadow: 0 0 0 10px rgba(230, 66, 15, 0); }
   100% { box-shadow: 0 0 0 0 rgba(230, 66, 15, 0); }
 }
+
+/* ---------- Weer (Vandaag) ---------- */
+.weather {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--teal); color: var(--cream);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 14px 16px; margin-top: 14px;
+}
+.weather__ico { font-size: 38px; line-height: 1; flex: none; }
+.weather__main { flex: 1; min-width: 0; }
+.weather__temp { font-family: var(--display); font-size: 30px; line-height: 1; }
+.weather__label { font-family: var(--body); font-size: 13px; font-weight: 600; opacity: 0.85; margin-left: 8px; }
+.weather__wind { font-size: 13px; font-weight: 600; opacity: 0.9; margin-top: 4px; }
+.weather__place { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; opacity: 0.7; align-self: flex-start; }
+
+/* Relatieve-tijd-chip op de next-card */
+.meta-chip--rel { background: var(--sun); color: var(--ink); }
 
 /* ---------- Cards ---------- */
 .card {

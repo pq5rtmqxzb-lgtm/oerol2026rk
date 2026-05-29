@@ -5,6 +5,7 @@
 (function () {
   var D = window.OERALL_DATA;
   var app = document.getElementById("app");
+  var tickTimer = null; // live countdown ticker (Vandaag)
 
   // ---- Dutch date helpers --------------------------------------------------
   var DAYS = ["zo", "ma", "di", "wo", "do", "vr", "za"];
@@ -31,6 +32,18 @@
     return String(s == null ? "" : s)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  // Relatieve tijd t.o.v. nu: "nu bezig", "over 2 uur", "over 35 min".
+  // Lege string als het te ver weg (> 1 dag) of al voorbij is.
+  function relTime(date, now) {
+    var diff = date - (now || new Date());
+    if (diff <= 0) return "nu bezig";
+    var mins = Math.round(diff / 6e4);
+    if (mins < 60) return "over " + mins + " min";
+    var hrs = Math.round(mins / 60);
+    if (hrs < 24) return "over " + hrs + " uur";
+    return "";
   }
 
   // ---- Event helpers -------------------------------------------------------
@@ -73,6 +86,31 @@
   };
   function genre(g) { return GENRE[g] || { label: g || "Oerol", color: "#ff5a2c" }; }
 
+  // ---- Weer (open-meteo, geen API-key) -------------------------------------
+  // WMO weather_code -> { emoji, label }. Compacte map, dekt de gangbare codes.
+  function weatherCode(c) {
+    if (c === 0) return { emoji: "☀️", label: "Helder" };
+    if (c === 1 || c === 2) return { emoji: "🌤️", label: "Half bewolkt" };
+    if (c === 3) return { emoji: "☁️", label: "Bewolkt" };
+    if (c === 45 || c === 48) return { emoji: "🌫️", label: "Mist" };
+    if (c >= 51 && c <= 57) return { emoji: "🌦️", label: "Motregen" };
+    if (c >= 61 && c <= 67) return { emoji: "🌧️", label: "Regen" };
+    if (c >= 71 && c <= 77) return { emoji: "🌨️", label: "Sneeuw" };
+    if (c >= 80 && c <= 82) return { emoji: "🌧️", label: "Buien" };
+    if (c >= 95) return { emoji: "⛈️", label: "Onweer" };
+    return { emoji: "🌡️", label: "Weer" };
+  }
+  function compass(deg) {
+    var dirs = ["N", "NO", "O", "ZO", "Z", "ZW", "W", "NW"];
+    return dirs[Math.round((deg % 360) / 45) % 8];
+  }
+  // Windsnelheid in m/s -> Beaufort (0–12).
+  function beaufort(ms) {
+    var bins = [0.3, 1.6, 3.4, 5.5, 8.0, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7];
+    for (var i = 0; i < bins.length; i++) { if (ms < bins[i]) return i; }
+    return 12;
+  }
+
   // expose helpers for map.js
   window.Oerall = { fmtDay: fmtDay };
 
@@ -104,15 +142,21 @@
     return '<div class="who"><span class="who__label">Wie gaan er:</span>' + chips + '</div>';
   }
 
-  function routeButtons(venue) {
-    if (!venue || !venue.lat) return "";
-    var url = window.OerallMap.directionsUrl(D.home, venue);
-    return (
-      '<div class="btn-row">' +
+  function shareButton(ev) {
+    return '<button class="btn btn--ghost" data-share="' + esc(ev.id) + '">📤 Deel</button>';
+  }
+
+  function routeButtons(ev) {
+    var venue = ev.venue;
+    var buttons = "";
+    if (venue && venue.lat) {
+      var url = window.OerallMap.directionsUrl(D.home, venue);
+      buttons +=
         '<a class="btn btn--primary" target="_blank" rel="noopener" href="' + url + '">🚲 Route ernaartoe</a>' +
-        '<a class="btn btn--ghost" href="#/map?focus=' + encodeURIComponent(venue.name) + '">🗺️ Op de kaart</a>' +
-      '</div>'
-    );
+        '<a class="btn btn--ghost" href="#/map?focus=' + encodeURIComponent(venue.name) + '">🗺️ Op de kaart</a>';
+    }
+    buttons += shareButton(ev);
+    return '<div class="btn-row">' + buttons + '</div>';
   }
 
   // ---- Pages ---------------------------------------------------------------
@@ -129,11 +173,13 @@
       var days = Math.floor(ms / 864e5);
       var hrs = Math.floor((ms % 864e5) / 36e5);
       var mins = Math.floor((ms % 36e5) / 6e4);
+      var secs = Math.floor((ms % 6e4) / 1e3);
       heroExtra =
         '<div class="countdown">' +
-          '<div class="cd-box"><div class="num">' + days + '</div><div class="lbl">dagen</div></div>' +
-          '<div class="cd-box"><div class="num">' + hrs + '</div><div class="lbl">uur</div></div>' +
-          '<div class="cd-box"><div class="num">' + mins + '</div><div class="lbl">min</div></div>' +
+          '<div class="cd-box"><div class="num" data-cd="days">' + days + '</div><div class="lbl">dagen</div></div>' +
+          '<div class="cd-box"><div class="num" data-cd="hrs">' + hrs + '</div><div class="lbl">uur</div></div>' +
+          '<div class="cd-box"><div class="num" data-cd="mins">' + mins + '</div><div class="lbl">min</div></div>' +
+          '<div class="cd-box"><div class="num" data-cd="secs">' + secs + '</div><div class="lbl">sec</div></div>' +
         '</div>';
     } else if (now <= end) {
       var dayNo = Math.floor((now - start) / 864e5) + 1;
@@ -149,6 +195,17 @@
         '<div class="hero__dates">12 – 21 juni · ' + esc(D.festival.island) + '</div>' +
         heroExtra +
       '</section>';
+
+    // Weerkaart (open-meteo) — wordt na render asynchroon gevuld door loadWeather().
+    var weatherHtml =
+      '<div class="weather" id="weather" hidden>' +
+        '<div class="weather__ico" data-w="ico">🌡️</div>' +
+        '<div class="weather__main">' +
+          '<div class="weather__temp"><span data-w="temp">–</span>°<span class="weather__label" data-w="label"></span></div>' +
+          '<div class="weather__wind" data-w="wind"></div>' +
+        '</div>' +
+        '<div class="weather__place">' + esc(D.festival.island) + '</div>' +
+      '</div>';
 
     // Next event card
     var nextHtml;
@@ -166,8 +223,9 @@
               '<span class="meta-chip">🗓️ ' + fmtDay(ne.day) + '</span>' +
               '<span class="meta-chip">🕒 ' + esc(ne.start) + (ne.end ? '–' + esc(ne.end) : '') + '</span>' +
               '<span class="meta-chip">📍 ' + esc(ne.venue.name) + '</span>' +
+              '<span class="meta-chip meta-chip--rel" data-rel="next"' + (relTime(parseDateTime(ne.day, ne.start), now) ? '' : ' hidden') + '>⏳ <span data-rel-txt>' + esc(relTime(parseDateTime(ne.day, ne.start), now)) + '</span></span>' +
             '</div>' +
-            routeButtons(ne.venue) +
+            routeButtons(ne) +
             whoChips(ne.attendees) +
           '</div>' +
         '</div>';
@@ -194,7 +252,91 @@
         link(D.links.oerol) + link(D.links.krant) + link(D.links.program) + link(D.links.tickets) +
       '</div>';
 
-    return hero + nextHtml + schedHtml + ql;
+    return hero + weatherHtml + nextHtml + schedHtml + ql;
+  }
+
+  // ---- Weer ophalen + tonen ------------------------------------------------
+  function paintWeather(w, stale) {
+    var box = document.getElementById("weather");
+    if (!box) return;
+    var wc = weatherCode(w.code);
+    var ms = w.wind;
+    var bft = beaufort(ms);
+    var kmh = Math.round(ms * 3.6);
+    box.querySelector('[data-w="ico"]').textContent = wc.emoji;
+    box.querySelector('[data-w="temp"]').textContent = Math.round(w.temp);
+    box.querySelector('[data-w="label"]').textContent = wc.label + (stale ? " · laatst bekend" : "");
+    box.querySelector('[data-w="wind"]').textContent =
+      "💨 " + bft + " Bft " + compass(w.dir) + " · " + kmh + " km/u";
+    box.hidden = false;
+  }
+
+  function loadWeather() {
+    var lat = (D.festival && D.festival.lat) || D.home.lat;
+    var lng = (D.festival && D.festival.lng) || D.home.lng;
+    if (lat == null || lng == null) return;
+
+    // Toon meteen de laatst bekende waarde (offline-vriendelijk).
+    var cached = null;
+    try { cached = JSON.parse(localStorage.getItem("oerall.weather") || "null"); } catch (e) {}
+    if (cached && cached.temp != null) paintWeather(cached, true);
+
+    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lng +
+      "&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m" +
+      "&wind_speed_unit=ms&timezone=Europe%2FAmsterdam";
+    fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+      var c = data && data.current;
+      if (!c) return;
+      var w = { temp: c.temperature_2m, code: c.weather_code, wind: c.wind_speed_10m, dir: c.wind_direction_10m };
+      try { localStorage.setItem("oerall.weather", JSON.stringify(w)); } catch (e) {}
+      paintWeather(w, false);
+    }).catch(function () { /* offline: gecachte waarde blijft staan, of kaart blijft verborgen */ });
+  }
+
+  // ---- Live ticker voor 'Vandaag' ------------------------------------------
+  function startTodayTicker() {
+    if (tickTimer) clearInterval(tickTimer);
+    var startMs = parseDateTime(D.festival.start, "00:00").getTime();
+    var preStart = Date.now() < startMs;       // tonen we de aftel-hero?
+    var ne0 = nextEvent(new Date());
+    var lastNextId = ne0 ? ne0.id : null;       // welke voorstelling staat er nu?
+
+    tickTimer = setInterval(function () {
+      var now = new Date();
+
+      // 1) Countdown loopt af -> hero omklappen naar 'live'. Eenmalig.
+      if (preStart && now.getTime() >= startMs) { render(); return; }
+
+      // 2) Aftellen: getallen in-place bijwerken (geen re-render).
+      if (preStart) {
+        var ms = startMs - now.getTime();
+        var set = function (key, val) {
+          var el = document.querySelector('[data-cd="' + key + '"]');
+          if (el) el.textContent = val;
+        };
+        set("days", Math.floor(ms / 864e5));
+        set("hrs", Math.floor((ms % 864e5) / 36e5));
+        set("mins", Math.floor((ms % 36e5) / 6e4));
+        set("secs", Math.floor((ms % 6e4) / 1e3));
+        return;
+      }
+
+      // 3) Tijdens het festival: wisselt de volgende voorstelling, dan ververst
+      //    de hele next-card; anders alleen de relatieve-tijd-chip bijwerken.
+      var ne = nextEvent(now);
+      var curId = ne ? ne.id : null;
+      if (curId !== lastNextId) { render(); return; }
+      var chip = document.querySelector('[data-rel="next"]');
+      if (chip && ne) {
+        var rel = relTime(parseDateTime(ne.day, ne.start), now);
+        if (rel) {
+          chip.querySelector("[data-rel-txt]").textContent = rel;
+          chip.hidden = false;
+        } else {
+          chip.hidden = true;
+        }
+      }
+    }, 1000);
   }
 
   function link(l, feature) {
@@ -248,7 +390,7 @@
         '<div class="kv"><span class="k">Toegang</span><span class="v">' + (ev.ticket ? '🎟️ Ticket nodig' : '🆓 Vrij toegankelijk') + '</span></div>' +
       '</div>' +
       '<p class="detail-desc">' + esc(ev.description || "") + '</p>' +
-      routeButtons(ev.venue) +
+      routeButtons(ev) +
       whoChips(ev.attendees)
     );
   }
@@ -373,6 +515,7 @@
   }
 
   function render() {
+    if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
     var r = parseHash();
     var html = "";
     switch (r.top) {
@@ -390,6 +533,10 @@
     app.focus({ preventScroll: true });
 
     // Page-specific wiring
+    if (r.top === "today") {
+      loadWeather();
+      startTodayTicker();
+    }
     if (r.top === "map") {
       window.OerallMap.init();
       window.OerallMap.refresh();
@@ -406,8 +553,28 @@
     }
   }
 
+  // Deel een voorstelling via de Web Share API, met klembord-fallback.
+  function shareEvent(id) {
+    var ev = byId(id);
+    if (!ev) return;
+    var url = location.origin + location.pathname + location.search + "#/event/" + ev.id;
+    var text = ev.title + (ev.artist ? " — " + ev.artist : "") +
+      " · " + fmtDay(ev.day) + " " + ev.start + " · " + ev.venue.name;
+    if (navigator.share) {
+      navigator.share({ title: "Oerall · " + ev.title, text: text, url: url }).catch(function () {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        alert("Link gekopieerd naar het klembord:\n" + url);
+      }).catch(function () { alert(url); });
+    } else {
+      alert(url);
+    }
+  }
+
   // Event delegation for clicks on event rows / back button
   app.addEventListener("click", function (e) {
+    var share = e.target.closest("[data-share]");
+    if (share) { shareEvent(share.getAttribute("data-share")); return; }
     var row = e.target.closest("[data-event]");
     if (row) { location.hash = "#/event/" + row.getAttribute("data-event"); return; }
     var back = e.target.closest("[data-back]");

@@ -3,8 +3,8 @@
 Our go-to companion app for **Oerol 2026** on Terschelling (45th edition, **12–21 June 2026**).
 One beautiful, fun, mobile-first place for everything we need this festival:
 
-- ☀️ **Vandaag** — live countdown to the festival, the **next event** with a one-tap bike route, and today's schedule.
-- 🎭 **Programma** — the events we're visiting, filterable per day, each with details + who's going.
+- ☀️ **Vandaag** — a **live ticking countdown** to the festival, today's **weather & wind** for Terschelling, the **next event** (with "over X uur") and a one-tap bike route, and today's schedule.
+- 🎭 **Programma** — the events we're visiting, filterable per day, each with details, who's going, and a **share** button.
 - 🗺️ **Kaart** — interactive map of Terschelling with venue + house pins, and a **route to the next event**.
 - 🏠 **Thuis** — everything about the house we sleep in: address, wifi, house rules, what's nearby, emergency numbers.
 - ✨ **Meer** — quick links to the official **Oerol website**, the daily **Oerol Krant**, tickets, the ferry and more.
