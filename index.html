@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Oerall — onze Oerol 2026</title>
+  <meta name="description" content="Oerall — de go-to app voor onze Oerol op Terschelling. Programma, het huis, de kaart en de route naar het volgende evenement." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0E3A38" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Oerall" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+
+  <!-- Fonts (with system fallback if offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet (vendored, offline-friendly) -->
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Top bar -->
+  <header class="topbar" id="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__logo">OERALL</span>
+      <span class="topbar__sub" id="topbar-sub">Onze Oerol · Terschelling</span>
+    </div>
+    <a class="topbar__ext" id="topbar-krant" href="#" target="_blank" rel="noopener" title="Oerol Krant">📰</a>
+  </header>
+
+  <!-- Page content gets rendered here -->
+  <main id="app" class="app" tabindex="-1">
+    <div class="loading">Laden…</div>
+  </main>
+
+  <!-- Bottom tab navigation -->
+  <nav class="tabbar" id="tabbar" aria-label="Hoofdnavigatie">
+    <a class="tab" data-route="today" href="#/today">
+      <span class="tab__icon">☀️</span><span class="tab__label">Vandaag</span>
+    </a>
+    <a class="tab" data-route="events" href="#/events">
+      <span class="tab__icon">🎭</span><span class="tab__label">Programma</span>
+    </a>
+    <a class="tab" data-route="map" href="#/map">
+      <span class="tab__icon">🗺️</span><span class="tab__label">Kaart</span>
+    </a>
+    <a class="tab" data-route="home" href="#/home">
+      <span class="tab__icon">🏠</span><span class="tab__label">Thuis</span>
+    </a>
+    <a class="tab" data-route="more" href="#/more">
+      <span class="tab__icon">✨</span><span class="tab__label">Meer</span>
+    </a>
+  </nav>
+
+  <!-- Scripts (plain, no build step) -->
+  <script src="js/data.js"></script>
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("sw.js").catch(function (e) {
+          console.warn("SW registration failed", e);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
