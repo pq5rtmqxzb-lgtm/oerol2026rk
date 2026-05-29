@@ -39,11 +39,11 @@ window.OERALL_DATA = {
   // ---- Ons huis ------------------------------------------------------------
   home: {
     name: "Vakantiehuis Castor",
-    address: "Oosterend, Terschelling",
-    // Coördinaten van Oosterend (bij benadering — zet exact op het adres van Castor).
-    lat: 53.4366,
-    lng: 5.4181,
-    approx: true,
+    address: "Lijkweg 3-2, 8897 HC Oosterend (Terschelling)",
+    // Coördinaten bij benadering; de Maps-knop gebruikt het volledige adres (query).
+    lat: 53.4361,
+    lng: 5.4163,
+    query: "Lijkweg 3, 8897 HC Oosterend, Terschelling",
     arrival: "2026-06-15", // eerste nacht: ma 15 juni
     departure: "2026-06-21", // iedereen vertrekt zo 21 juni
     wifi: { network: "nog invullen", password: "nog invullen" },
@@ -92,9 +92,11 @@ window.OERALL_DATA = {
   },
 
   // ---- Onze voorstellingen -------------------------------------------------
-  // De "blauwe" keuze per dag uit ons schema, plus een paar vriendenacties.
-  // genre: "theater" | "muziek" | "straat" | "woord" | "kunst" | "eten" | "dans"
-  // attendees = wie er die dag op het eiland is (uit de huisbezetting).
+  // De "blauwe" keuze per dag uit ons schema. Woensdag 17 juni is een rustdag
+  // (geen vaste keuze). genre: "theater" | "muziek" | "straat" | "woord" |
+  // "kunst" | "eten" | "dans".
+  // attendees = wie er volgens rij 3 ("Wie") daadwerkelijk bij is.
+  // venue.query = het Oerol-adres uit de sheet → wordt gebruikt voor de route.
   events: [
     {
       id: "ma15-notyet",
@@ -103,10 +105,10 @@ window.OERALL_DATA = {
       genre: "dans",
       day: "2026-06-15",
       start: "15:00",
-      venue: { name: "Duinen", area: "Terschelling", lat: 53.412, lng: 5.355, approx: true, query: "Ivgi&Greben Not Yet Oerol Terschelling" },
+      venue: { name: "Heester Dyk", area: "loc. 14", lat: 53.392, lng: 5.282, approx: true, query: "Heester Dyk, Terschelling" },
       description:
         "Het Leeuwarder dansgezelschap Ivgi&Greben keert terug met Not Yet: dansers én publiek leggen samen een route af door een onbekend landschap, op zoek naar houvast en verbinding met de plek en met elkaar.",
-      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"],
+      attendees: ["Rik", "Marianne", "Marieke", "Kevin"],
       ticket: true,
     },
     {
@@ -116,37 +118,11 @@ window.OERALL_DATA = {
       genre: "theater",
       day: "2026-06-16",
       start: "18:45",
-      venue: { name: "Festivalhart (West)", area: "West-Terschelling", lat: 53.360, lng: 5.217, approx: true, query: "Aisa Demeter Orkater Oerol Terschelling" },
+      venue: { name: "Bostheater", area: "vaste locatie", lat: 53.413, lng: 5.345, approx: true, query: "Bostheater Oerol, Terschelling" },
       description:
         "Orkater komt met speciale Oerol-edities van Aisa Demeter. Een moderne muzikale mythe over de kracht van woede, met indringende zangmelodieën, Caribische samples en diepe baslijnen.",
-      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"],
+      attendees: ["Rik", "Marianne", "Marieke", "Kevin", "Anja", "Marlies"],
       ticket: true,
-    },
-    {
-      id: "wo17-destreken",
-      title: "De Streken (vriendenactie)",
-      artist: "Marc van Vliet",
-      genre: "kunst",
-      day: "2026-06-17",
-      start: "10:00",
-      venue: { name: "Dijk Perkweg (loc. 36)", area: "Oost-Terschelling", lat: 53.430, lng: 5.400, approx: true, query: "Marc van Vliet De Streken Oerol Terschelling" },
-      description:
-        "Vriendenactie: uitleg bij het getijdenkunstwerk De Streken. Marieke's keuze — sluit gerust aan.",
-      attendees: ["Marieke"],
-      ticket: false,
-    },
-    {
-      id: "wo17-dansenaanzee",
-      title: "Dansen aan zee (vriendenactie)",
-      artist: "Oerol",
-      genre: "muziek",
-      day: "2026-06-17",
-      start: "20:00",
-      venue: { name: "Strand", area: "Noordkant", lat: 53.410, lng: 5.345, approx: true, query: "Dansen aan zee Oerol Terschelling strand" },
-      description:
-        "Onze woensdagavond: dansen aan zee. Gezellig met de groep die er die dag is.",
-      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Jaco"],
-      ticket: false,
     },
     {
       id: "do18-reinaard",
@@ -155,10 +131,10 @@ window.OERALL_DATA = {
       genre: "woord",
       day: "2026-06-18",
       start: "14:00",
-      venue: { name: "Festivalhart (West)", area: "West-Terschelling", lat: 53.361, lng: 5.218, approx: true, query: "Tom Lanoye ReinAard Oerol Terschelling" },
+      venue: { name: "Bostheater", area: "vaste locatie", lat: 53.413, lng: 5.345, approx: true, query: "Bostheater Oerol, Terschelling" },
       description:
         "Woordkunst van Tom Lanoye: een eigentijdse ReinAard. Onze donderdagmiddag-keuze.",
-      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Fabian", "Jaco"],
+      attendees: ["Rik", "Marianne", "Marieke", "Kevin", "Jaco"],
       ticket: true,
     },
     {
@@ -168,10 +144,10 @@ window.OERALL_DATA = {
       genre: "theater",
       day: "2026-06-18",
       start: "22:15",
-      venue: { name: "Duinen (avond)", area: "Midsland aan Zee", lat: 53.401, lng: 5.276, approx: true, query: "Cello Octet Amsterdam Star Map Oerol Terschelling" },
+      venue: { name: "Strand Midsland aan Zee", area: "loc. 21", lat: 53.413, lng: 5.293, approx: true, query: "Strand Midsland aan Zee, Terschelling" },
       description:
-        "Late voorstelling onder de sterren met het Cello Octet Amsterdam en muziek van Kate Moore. Neem een warme jas mee — het wordt fris en donker.",
-      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Fabian", "Jaco"],
+        "Late voorstelling onder de sterren met het Cello Octet Amsterdam en muziek van Kate Moore. Op het strand bij Midsland aan Zee — neem een warme jas mee, het wordt fris en donker. (Volgens het schema: 'Star map voor 3'.)",
+      attendees: ["Rik", "Marianne", "Marieke", "Kevin", "Jaco"],
       ticket: true,
     },
     {
@@ -181,10 +157,10 @@ window.OERALL_DATA = {
       genre: "theater",
       day: "2026-06-19",
       start: "11:30",
-      venue: { name: "Festivalhart (West)", area: "West-Terschelling", lat: 53.360, lng: 5.216, approx: true, query: "Bambie Gaat Tot De Bodem Oerol Terschelling" },
+      venue: { name: "Landje Laura en Wietse", area: "loc. 25 · Oost", lat: 53.432, lng: 5.405, approx: true, query: "Landje Laura en Wietse, Oosterend, Terschelling" },
       description:
-        "Fysiek, absurd en hilarisch beeldend theater van Bambie. Onze vrijdagochtend-keuze.",
-      attendees: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"],
+        "Fysiek, absurd en hilarisch beeldend theater van Bambie. Onze vrijdagochtend-keuze, op een landje aan de oostkant.",
+      attendees: ["Rik", "Marianne", "Marieke", "Kevin", "Jaco", "Fabian"],
       ticket: true,
     },
     {
@@ -194,10 +170,10 @@ window.OERALL_DATA = {
       genre: "theater",
       day: "2026-06-20",
       start: "15:30",
-      venue: { name: "Buitenlocatie (duinen)", area: "Midsland-Noord", lat: 53.405, lng: 5.290, approx: true, query: "North Side Story YoungGangsters Oerol Terschelling" },
+      venue: { name: "Dellewal", area: "loc. 4 · West", lat: 53.357, lng: 5.230, approx: true, query: "Dellewal, West-Terschelling" },
       description:
-        "Buitenspektakel: een actie-musical en moderne Romeo & Julia van YoungGangsters, over de spanning tussen oude en nieuwe eilanders — trots versus verandering, vlees versus veggie, pils versus kombucha.",
-      attendees: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"],
+        "Buitenspektakel bij Dellewal: een actie-musical en moderne Romeo & Julia van YoungGangsters, over de spanning tussen oude en nieuwe eilanders — trots versus verandering, vlees versus veggie, pils versus kombucha.",
+      attendees: ["Rik", "Marianne", "Joeri", "Kevin", "Jaco", "Fabian"],
       ticket: true,
     },
     {
@@ -207,10 +183,10 @@ window.OERALL_DATA = {
       genre: "theater",
       day: "2026-06-21",
       start: "13:00",
-      venue: { name: "Voormalig AZC-terrein", area: "West-Terschelling", lat: 53.366, lng: 5.235, approx: true, query: "AZC de Musical TOBAL Oerol Terschelling" },
+      venue: { name: "Parkeerplaats Formerum aan Zee", area: "loc. 24 · Midden", lat: 53.427, lng: 5.345, approx: true, query: "Parkeerplaats Formerum aan Zee, Terschelling" },
       description:
-        "TOBAL speelt AZC de Musical op de plek waar ooit een asielzoekerscentrum stond. Waar nu dure appartementen staan, klinkt nog steeds de roep: AZC ga weg. Onze afsluiter op zondag — check je boottijd!",
-      attendees: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"],
+        "TOBAL speelt AZC de Musical: waar ooit een asielzoekerscentrum stond en nu dure appartementen staan, klinkt nog steeds de roep 'AZC ga weg'. Onze afsluiter op zondag bij Formerum aan Zee — check je boottijd!",
+      attendees: ["Rik", "Marianne", "Joeri", "Kevin", "Jaco", "Fabian"],
       ticket: true,
     },
   ],
