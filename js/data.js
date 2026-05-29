@@ -31,6 +31,10 @@ window.OERALL_DATA = {
     end: "2026-06-21", // laatste festivaldag
     island: "Terschelling",
     tagline: "Theater, muziek en kunst in het landschap",
+    // Centrale coördinaat voor de weersverwachting op 'Vandaag' (open-meteo).
+    // Eiland is klein, één punt volstaat. Valt anders terug op het huis.
+    lat: 53.39,
+    lng: 5.31,
   },
 
   // ---- De hele groep -------------------------------------------------------
