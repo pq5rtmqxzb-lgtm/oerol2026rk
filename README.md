@@ -7,10 +7,13 @@ One beautiful, fun, mobile-first place for everything we need this festival:
 - 🎭 **Programma** — the events we're visiting, filterable per day, each with details, who's going, and a **share** button.
 - 🗺️ **Kaart** — Google Maps of Terschelling: tap a venue (or the house) to see its **exact** spot by address, with **open in Google Maps** and a **route to the next event**.
 - 🏠 **Thuis** — everything about the house we sleep in: address, wifi, house rules, what's nearby, emergency numbers.
-- ✨ **Meer** — quick links to the official **Oerol website**, the daily **Oerol Krant**, tickets, the ferry and more.
+- ✨ **Meer** — quick links to the official **Oerol website**, the daily **Oerol Krant**, tickets, the ferry and more, plus the full **Terschelling in beeld** art collection.
+- 🖼️ **Terschelling in beeld** — a small gallery of hand-drawn nature scenes of the island (the Brandaris, dunes, the Wad, the kwelder, the beach, cranberry fields), shown on **Vandaag** and **Meer**.
 
 Built as a **static PWA** (plain HTML/CSS/JS, no build step). Installable to your phone's home
-screen and works offline once loaded. Styled in Oerol's bold, raw, landscape-inspired look.
+screen and works offline once loaded. Styled as an **editorial, art-first gallery** — a warm,
+nature-derived palette with the editorial serif *Fraunces*, built for art-loving visitors. All
+imagery is hand-crafted SVG (in [`img/`](img/)), so it stays crisp and works fully offline.
 
 ## Run it locally
 
@@ -35,6 +38,8 @@ python3 -m http.server 8000
   - `attendees` are just names — who from the crew is going.
 - `crew` — the group's names.
 - `links` — official URLs (update if any change).
+- `gallery` — the **Terschelling in beeld** plates: each `{ img, title, caption }` points to an
+  SVG in `img/` and shows a museum-style label. Add or reword captions freely.
 
 Save and reload — no build step.
 
@@ -63,13 +68,14 @@ Free hosting via **GitHub Pages**:
 
 ```
 index.html               app shell + tab navigation
-css/styles.css           Oerol-style theme
-js/data.js               ← EDIT THIS: all our content
+css/styles.css           editorial, art-first theme (Fraunces + nature palette)
+js/data.js               ← EDIT THIS: all our content (incl. the gallery)
 js/app.js                router + page rendering + countdown / next-event logic
 js/map.js                Google Maps embeds, venue selector, maps hand-off
+img/                     hand-drawn SVG nature art of Terschelling (hero, banners, gallery)
 manifest.webmanifest     PWA install metadata
 sw.js                    service worker (offline app shell)
-icons/                   app icons (coral "O" on teal)
+icons/                   app icons (sun over the dunes)
 ```
 
 Made with 🧡 for our Oerol. Veel plezier op Terschelling!

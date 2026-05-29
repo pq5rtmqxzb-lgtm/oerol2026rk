@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Duinen met helmgras en een zandpad op Terschelling">
+  <defs>
+    <linearGradient id="d-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bcd6dc"/>
+      <stop offset="0.6" stop-color="#dbe6df"/>
+      <stop offset="1" stop-color="#eef0e2"/>
+    </linearGradient>
+    <linearGradient id="d-path" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e7d3a4"/>
+      <stop offset="1" stop-color="#cba85f"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#d-sky)"/>
+  <!-- soft clouds -->
+  <g fill="#ffffff" opacity="0.55">
+    <ellipse cx="180" cy="90" rx="90" ry="26"/><ellipse cx="250" cy="100" rx="70" ry="20"/>
+    <ellipse cx="600" cy="64" rx="110" ry="28"/><ellipse cx="520" cy="74" rx="64" ry="18"/>
+  </g>
+  <circle cx="118" cy="96" r="34" fill="#f4e3a8" opacity="0.85"/>
+
+  <!-- distant dune ridges -->
+  <path d="M0 250 C 160 214, 320 240, 470 220 C 610 202, 720 234, 800 220 L800 500 L0 500 Z" fill="#c9c98f"/>
+  <path d="M0 296 C 150 262, 340 290, 520 270 C 660 256, 740 286, 800 276 L800 500 L0 500 Z" fill="#b7bd79"/>
+
+  <!-- sandy path snaking up into the dunes -->
+  <path d="M356 500 C 372 420, 470 380, 446 320 C 430 282, 372 268, 392 232 L420 234 C 408 266, 470 286, 486 322 C 506 384, 432 426, 430 500 Z" fill="url(#d-path)"/>
+  <g stroke="#bd9a52" stroke-width="2" opacity="0.5" fill="none">
+    <path d="M392 470 C 404 420, 470 392, 452 340"/>
+  </g>
+
+  <!-- left dune body -->
+  <path d="M0 360 C 120 322, 240 360, 320 410 C 360 436, 340 500, 300 500 L0 500 Z" fill="#8a9a5b"/>
+  <!-- right dune body -->
+  <path d="M800 350 C 680 318, 560 356, 500 408 C 462 440, 486 500, 540 500 L800 500 Z" fill="#7c8b57"/>
+  <!-- foreground sandy hummock -->
+  <path d="M0 470 C 120 440, 260 470, 360 500 L0 500 Z" fill="#5f6e40"/>
+  <path d="M800 470 C 660 444, 520 472, 440 500 L800 500 Z" fill="#5f6e40"/>
+
+  <!-- marram grass clumps -->
+  <g stroke-linecap="round" fill="none">
+    <g stroke="#41502d" stroke-width="3">
+      <path d="M120 420 q -8 -46 -22 -70"/><path d="M134 420 q 0 -42 6 -68"/><path d="M148 422 q 10 -40 4 -66"/><path d="M104 420 q -16 -40 -30 -58"/>
+      <path d="M650 410 q -8 -46 -22 -70"/><path d="M664 410 q 0 -42 6 -68"/><path d="M678 412 q 10 -40 4 -66"/><path d="M696 410 q 16 -40 30 -58"/>
+      <path d="M300 472 q -8 -50 -22 -76"/><path d="M316 472 q 2 -46 10 -72"/><path d="M286 472 q -16 -44 -30 -64"/>
+      <path d="M520 470 q -8 -50 -22 -76"/><path d="M536 470 q 2 -46 10 -72"/><path d="M550 470 q 16 -44 30 -64"/>
+    </g>
+  </g>
+  <g fill="#cba85f">
+    <ellipse cx="98" cy="346" rx="3" ry="8"/><ellipse cx="140" cy="348" rx="3" ry="8"/><ellipse cx="628" cy="336" rx="3" ry="8"/><ellipse cx="726" cy="348" rx="3" ry="8"/>
+    <ellipse cx="278" cy="392" rx="3.4" ry="9"/><ellipse cx="498" cy="390" rx="3.4" ry="9"/><ellipse cx="580" cy="402" rx="3.4" ry="9"/>
+  </g>
+</svg>

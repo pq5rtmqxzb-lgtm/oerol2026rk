@@ -1,5 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#0e3a38"/>
-  <circle cx="256" cy="256" r="141" fill="none" stroke="#ff5a2c" stroke-width="72"/>
-  <circle cx="361" cy="151" r="37" fill="#ffd23f"/>
+  <rect width="512" height="512" fill="#3c6a78"/>
+  <!-- warme zon (duingoud) -->
+  <circle cx="312" cy="206" r="92" fill="#cba85f"/>
+  <!-- duinen -->
+  <path d="M0 348 C 110 312, 220 344, 320 330 C 410 318, 470 342, 512 332 L512 512 L0 512 Z" fill="#7c8b57"/>
+  <path d="M0 410 C 130 378, 280 410, 400 392 C 460 384, 490 400, 512 396 L512 512 L0 512 Z" fill="#cf6b43"/>
 </svg>

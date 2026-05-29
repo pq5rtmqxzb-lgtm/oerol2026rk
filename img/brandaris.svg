@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="De vuurtoren Brandaris boven de duinen bij zonsondergang op Terschelling">
+  <defs>
+    <linearGradient id="b-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3c98f"/>
+      <stop offset="0.42" stop-color="#e8a86a"/>
+      <stop offset="0.72" stop-color="#cf6b43"/>
+      <stop offset="1" stop-color="#9c5a78"/>
+    </linearGradient>
+    <radialGradient id="b-sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff3d6"/>
+      <stop offset="0.55" stop-color="#ffd98c"/>
+      <stop offset="1" stop-color="#f4b06a"/>
+    </radialGradient>
+    <linearGradient id="b-sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cf7e63"/>
+      <stop offset="1" stop-color="#8a6f80"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#b-sky)"/>
+  <circle cx="560" cy="190" r="92" fill="url(#b-sun)"/>
+  <!-- thin horizon haze bands -->
+  <g opacity="0.35" fill="#fbe2bf">
+    <rect x="0" y="178" width="800" height="6"/>
+    <rect x="0" y="196" width="800" height="4"/>
+    <rect x="0" y="210" width="800" height="3"/>
+  </g>
+
+  <!-- distant sea -->
+  <rect x="0" y="262" width="800" height="46" fill="url(#b-sea)"/>
+  <g opacity="0.5" fill="#f4d9b0">
+    <rect x="40" y="276" width="120" height="3" rx="1.5"/>
+    <rect x="300" y="288" width="180" height="3" rx="1.5"/>
+    <rect x="600" y="270" width="140" height="3" rx="1.5"/>
+  </g>
+
+  <!-- far dune ridge -->
+  <path d="M0 320 C 150 286, 320 300, 480 282 C 620 268, 720 300, 800 286 L800 500 L0 500 Z" fill="#8a925a"/>
+  <!-- mid dune -->
+  <path d="M0 360 C 180 320, 340 352, 520 332 C 660 318, 740 348, 800 338 L800 500 L0 500 Z" fill="#7c8b57"/>
+
+  <!-- the Brandaris (square brick tower) -->
+  <g transform="translate(196 150)">
+    <rect x="0" y="0" width="58" height="190" rx="3" fill="#b9603a"/>
+    <rect x="0" y="0" width="20" height="190" rx="3" fill="#cf6b43"/>
+    <rect x="46" y="0" width="12" height="190" fill="#9a4d2e"/>
+    <!-- lantern room -->
+    <rect x="6" y="-30" width="46" height="34" rx="3" fill="#2f2a26"/>
+    <rect x="14" y="-24" width="30" height="22" rx="2" fill="#ffd98c"/>
+    <!-- cap -->
+    <path d="M2 -30 L29 -50 L56 -30 Z" fill="#26221f"/>
+    <rect x="26" y="-62" width="6" height="14" fill="#26221f"/>
+    <!-- gallery rail -->
+    <rect x="-3" y="2" width="64" height="6" fill="#2f2a26"/>
+    <!-- small windows -->
+    <g fill="#2f2a26"><rect x="24" y="40" width="10" height="14" rx="2"/><rect x="24" y="86" width="10" height="14" rx="2"/><rect x="24" y="132" width="10" height="14" rx="2"/></g>
+    <!-- beam of light toward the sun -->
+    <path d="M52 -16 L300 -70 L300 30 L52 6 Z" fill="#fff3d6" opacity="0.28"/>
+  </g>
+
+  <!-- foreground dune with marram grass -->
+  <path d="M0 408 C 160 370, 360 404, 560 384 C 690 372, 760 398, 800 392 L800 500 L0 500 Z" fill="#5f6e40"/>
+  <g stroke="#41502d" stroke-width="3" stroke-linecap="round" opacity="0.9">
+    <path d="M70 408 q -6 -34 -16 -52" fill="none"/><path d="M82 408 q 2 -30 10 -50" fill="none"/><path d="M96 410 q 8 -28 4 -48" fill="none"/>
+    <path d="M250 396 q -6 -32 -16 -48" fill="none"/><path d="M262 396 q 4 -30 12 -46" fill="none"/>
+    <path d="M470 392 q -6 -30 -14 -46" fill="none"/><path d="M484 392 q 4 -28 12 -44" fill="none"/>
+    <path d="M650 398 q -6 -30 -16 -46" fill="none"/><path d="M664 398 q 4 -28 12 -44" fill="none"/>
+  </g>
+  <g fill="#cba85f" opacity="0.9">
+    <ellipse cx="54" cy="352" rx="3" ry="7"/><ellipse cx="92" cy="356" rx="3" ry="7"/>
+    <ellipse cx="234" cy="346" rx="3" ry="7"/><ellipse cx="456" cy="344" rx="3" ry="7"/><ellipse cx="634" cy="350" rx="3" ry="7"/>
+  </g>
+</svg>

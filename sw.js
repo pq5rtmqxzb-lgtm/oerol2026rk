@@ -1,7 +1,7 @@
 /* OERALL service worker — offline app shell.
    Strategy: network-first for our own files (so updates always show when
    online), cache only as offline fallback. Bump CACHE on big changes. */
-var CACHE = "oerall-v7";
+var CACHE = "oerall-v8";
 var ASSETS = [
   "./",
   "./index.html",
@@ -12,7 +12,13 @@ var ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./icons/icon.svg"
+  "./icons/icon.svg",
+  "./img/brandaris.svg",
+  "./img/duinen.svg",
+  "./img/wad.svg",
+  "./img/kwelder.svg",
+  "./img/strand.svg",
+  "./img/cranberry.svg"
 ];
 
 self.addEventListener("install", function (e) {
