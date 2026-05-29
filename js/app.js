@@ -510,7 +510,10 @@
   function setActiveTab(top) {
     var tabbarTop = (top === "event") ? "events" : top;
     document.querySelectorAll(".tab").forEach(function (t) {
-      t.classList.toggle("is-active", t.getAttribute("data-route") === tabbarTop);
+      var isActive = t.getAttribute("data-route") === tabbarTop;
+      t.classList.toggle("is-active", isActive);
+      if (isActive) { t.setAttribute("aria-current", "page"); }
+      else { t.removeAttribute("aria-current"); }
     });
   }
 

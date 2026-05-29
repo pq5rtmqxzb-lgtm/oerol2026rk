@@ -8,7 +8,8 @@
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#0E3A38" />
+  <meta name="theme-color" content="#0E3A38" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#14110E" media="(prefers-color-scheme: dark)" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Oerall" />
@@ -38,7 +39,13 @@
 
   <!-- Page content gets rendered here -->
   <main id="app" class="app" tabindex="-1">
-    <div class="loading">Laden…</div>
+    <div class="skeleton" aria-label="Laden…" role="status">
+      <div class="sk sk--hero"></div>
+      <div class="sk sk--bar"></div>
+      <div class="sk sk--row"></div>
+      <div class="sk sk--row"></div>
+      <div class="sk sk--row"></div>
+    </div>
   </main>
 
   <!-- Bottom tab navigation -->
