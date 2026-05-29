@@ -1,7 +1,7 @@
 /* OERALL service worker — offline app shell.
    Strategy: network-first for our own files (so updates always show when
    online), cache only as offline fallback. Bump CACHE on big changes. */
-var CACHE = "oerall-v5";
+var CACHE = "oerall-v6";
 var ASSETS = [
   "./",
   "./index.html",
