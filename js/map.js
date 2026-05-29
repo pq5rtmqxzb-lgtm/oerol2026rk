@@ -1,19 +1,13 @@
 /* ============================================================
-   OERALL — Map module (Leaflet + OpenStreetMap)
-   Centred on Terschelling. Pins for venues + the house,
-   plus a "route to next event" line + maps hand-off.
+   OERALL — Map module (Google Maps)
+   Replaces the old approximate Leaflet/OSM pins. Every venue is
+   shown by its real address/name (venue.query) so Google geocodes
+   the exact spot instead of our hand-placed coordinates.
+   Uses Google's keyless embed (output=embed) for the in-app map and
+   the Maps URL API for "open in app" / turn-by-turn directions.
    ============================================================ */
 
 window.OerallMap = (function () {
-  var map = null;
-  var routeLayer = null;
-  var initialized = false;
-
-  // Fix Leaflet's default marker image paths to our vendored copies
-  if (window.L) {
-    L.Icon.Default.prototype.options.imagePath = "vendor/leaflet/images/";
-  }
-
   var GENRE_COLORS = {
     theater: "#ff5a2c",
     muziek: "#2e7d9a",
@@ -24,111 +18,155 @@ window.OerallMap = (function () {
     dans: "#9c36b5",
   };
 
-  function venuePin(color) {
-    return L.divIcon({
-      className: "",
-      html: '<div class="venue-pin" style="background:' + color + '"><span>★</span></div>',
-      iconSize: [26, 26],
-      iconAnchor: [13, 26],
-      popupAnchor: [0, -24],
-    });
+  // A location's most accurate text handle: the full address/name query,
+  // falling back to coordinates only if no query is known.
+  function locQuery(loc) {
+    if (!loc) return "";
+    if (loc.query) return loc.query;
+    if (loc.lat != null) return loc.lat + "," + loc.lng;
+    return "";
   }
 
-  function homePin() {
-    return L.divIcon({
-      className: "",
-      html: '<div class="home-pin"><span>🏠</span></div>',
-      iconSize: [30, 30],
-      iconAnchor: [15, 30],
-      popupAnchor: [0, -28],
-    });
+  // ---- URL builders --------------------------------------------------------
+
+  // In-app map: keyless Google Maps embed centred on a place (by address).
+  function embedSearchUrl(query) {
+    return "https://www.google.com/maps?q=" + encodeURIComponent(query) + "&output=embed";
   }
 
-  // Build a Google Maps cycling-directions URL (works on all phones/desktop).
-  // Prefer a text query for the destination (venue.query) so navigation is
-  // accurate even though our on-map pin is only approximate; fall back to coords.
-  function directionsUrl(from, to) {
-    var base = "https://www.google.com/maps/dir/?api=1";
-    var origin = (from && from.query)
-      ? encodeURIComponent(from.query)
-      : (from.lat + "," + from.lng);
-    var dest = (to && to.query)
-      ? encodeURIComponent(to.query)
-      : (to.lat + "," + to.lng);
+  // In-app map: keyless Google Maps embed showing cycling directions.
+  function embedDirectionsUrl(from, to) {
     return (
-      base +
-      "&origin=" + origin +
-      "&destination=" + dest +
+      "https://www.google.com/maps?saddr=" + encodeURIComponent(locQuery(from)) +
+      "&daddr=" + encodeURIComponent(locQuery(to)) +
+      "&dirflg=b&output=embed"
+    );
+  }
+
+  // Open the full Google Maps app/site at a place (most accurate hand-off).
+  function searchUrl(loc) {
+    return "https://www.google.com/maps/search/?api=1&query=" +
+      encodeURIComponent(locQuery(loc));
+  }
+
+  // Open the full Google Maps app/site with cycling directions.
+  function directionsUrl(from, to) {
+    return (
+      "https://www.google.com/maps/dir/?api=1" +
+      "&origin=" + encodeURIComponent(locQuery(from)) +
+      "&destination=" + encodeURIComponent(locQuery(to)) +
       "&travelmode=bicycling"
     );
   }
-  OerallMap_directionsUrl = directionsUrl; // expose for app.js
 
-  function init() {
-    if (initialized || !window.L) return;
-    var data = window.OERALL_DATA;
-    var home = data.home;
+  // ---- In-app embed --------------------------------------------------------
 
-    map = L.map("map", { scrollWheelZoom: false, attributionControl: true })
-      .setView([53.39, 5.31], 11);
+  function frame() {
+    return document.getElementById("gmap");
+  }
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      attribution: "© OpenStreetMap-bijdragers",
-    }).addTo(map);
+  function setFrame(url) {
+    var el = frame();
+    if (el && el.getAttribute("src") !== url) el.setAttribute("src", url);
+  }
 
-    // House marker
-    if (home && home.lat) {
-      L.marker([home.lat, home.lng], { icon: homePin() })
-        .addTo(map)
-        .bindPopup("<b>🏠 " + home.name + "</b><br>" + home.address);
+  // Render the buttons for a selected place (open in Maps + route from home).
+  function showActions(loc, isHome) {
+    var box = document.getElementById("map-actions");
+    if (!box) return;
+    var home = window.OERALL_DATA.home;
+    var html =
+      '<a class="btn btn--primary" target="_blank" rel="noopener" href="' +
+        searchUrl(loc) + '">📍 Open in Google Maps</a>';
+    if (!isHome && home) {
+      html += '<a class="btn btn--ghost" target="_blank" rel="noopener" href="' +
+        directionsUrl(home, loc) + '">🚲 Route ernaartoe</a>';
     }
+    box.innerHTML = html;
+  }
 
-    // Venue markers (dedupe by name)
+  // Show a single place on the embedded map + its actions.
+  function focus(loc, isHome) {
+    if (!loc) return;
+    setFrame(embedSearchUrl(locQuery(loc)));
+    showActions(loc, isHome);
+    markActive(loc.name);
+  }
+
+  // Show cycling directions from home to a venue on the embedded map.
+  function routeTo(venue) {
+    if (!venue) return;
+    var home = window.OERALL_DATA.home;
+    setFrame(embedDirectionsUrl(home, venue));
+    showActions(venue, false);
+    markActive(venue.name);
+  }
+
+  function markActive(name) {
+    document.querySelectorAll(".venue-chip").forEach(function (c) {
+      c.classList.toggle("is-active", c.getAttribute("data-name") === name);
+    });
+  }
+
+  // Build the venue selector chips (the house + each unique venue).
+  function buildChips() {
+    var box = document.getElementById("map-venues");
+    if (!box) return;
+    var data = window.OERALL_DATA;
+    var chips = [];
+
+    chips.push(
+      '<button class="venue-chip" data-name="' + escAttr(data.home.name) + '" data-home="1">' +
+        '<i class="chip-dot" style="background:#0e3a38;border:2px solid #fff;"></i>🏠 ' +
+        escHtml(data.home.name) + '</button>'
+    );
+
     var seen = {};
     data.events.forEach(function (ev) {
       var v = ev.venue;
-      if (!v || !v.lat) return;
-      var key = v.name;
-      if (seen[key]) return;
-      seen[key] = true;
+      if (!v || seen[v.name]) return;
+      seen[v.name] = true;
       var color = GENRE_COLORS[ev.genre] || "#ff5a2c";
-      var popup =
-        "<b>" + ev.title + "</b><br>" +
-        "📍 " + v.name + (v.area ? " · " + v.area : "") + "<br>" +
-        "🗓️ " + window.Oerall.fmtDay(ev.day) + " · " + ev.start;
-      if (home && home.lat) {
-        popup += '<br><a class="popup-btn" target="_blank" rel="noopener" href="' +
-          directionsUrl(home, v) + '">🚲 Route hierheen</a>';
-      }
-      L.marker([v.lat, v.lng], { icon: venuePin(color) })
-        .addTo(map)
-        .bindPopup(popup);
+      chips.push(
+        '<button class="venue-chip" data-name="' + escAttr(v.name) + '">' +
+          '<i class="chip-dot" style="background:' + color + ';"></i>' +
+          escHtml(v.name) + (v.area ? ' · ' + escHtml(v.area) : '') + '</button>'
+      );
     });
 
-    initialized = true;
-    setTimeout(function () { if (map) map.invalidateSize(); }, 120);
+    box.innerHTML = chips.join("");
+
+    box.addEventListener("click", function (e) {
+      var chip = e.target.closest(".venue-chip");
+      if (!chip) return;
+      var name = chip.getAttribute("data-name");
+      if (chip.getAttribute("data-home")) { focus(data.home, true); return; }
+      var ev = data.events.filter(function (x) { return x.venue.name === name; })[0];
+      if (ev) focus(ev.venue, false);
+    });
   }
 
-  // Draw a straight route line from home to the given venue + zoom to it
-  function routeTo(venue) {
-    if (!map) return;
-    var home = window.OERALL_DATA.home;
-    if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
-    if (!home || !home.lat || !venue || !venue.lat) return;
+  function escHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function escAttr(s) { return escHtml(s).replace(/"/g, "&quot;"); }
 
-    var latlngs = [[home.lat, home.lng], [venue.lat, venue.lng]];
-    routeLayer = L.layerGroup([
-      L.polyline(latlngs, { color: "#0e3a38", weight: 5, opacity: 0.9, dashArray: "2 10", lineCap: "round" }),
-      L.polyline(latlngs, { color: "#ff5a2c", weight: 3, opacity: 0.95 }),
-    ]).addTo(map);
-
-    map.fitBounds(L.latLngBounds(latlngs).pad(0.4));
+  function init() {
+    buildChips();
+    // Default view: an overview of the whole island. The page (and thus the
+    // iframe) is rebuilt on every navigation, so set this whenever it's empty.
+    var el = frame();
+    if (el && !el.getAttribute("src")) {
+      setFrame(embedSearchUrl(window.OERALL_DATA.festival.island + ", Nederland"));
+    }
   }
 
-  function refresh() {
-    if (map) setTimeout(function () { map.invalidateSize(); }, 80);
-  }
-
-  return { init: init, routeTo: routeTo, refresh: refresh, directionsUrl: directionsUrl };
+  return {
+    init: init,
+    focus: focus,
+    routeTo: routeTo,
+    searchUrl: searchUrl,
+    directionsUrl: directionsUrl,
+  };
 })();
