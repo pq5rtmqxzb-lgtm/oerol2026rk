@@ -129,7 +129,7 @@
           '<span class="genre-tag" style="background:' + g.color + ';margin-top:8px;">' + g.label + '</span>' +
         '</div>' +
         '<div class="event-row__tail">' +
-          (ev.ticket ? '<span title="Ticket nodig">🎟️</span>' : '<span title="Vrij toegankelijk">🆓</span>') +
+          (ev.ticket ? '<span title="Kaartje in bezit">🎟️</span>' : '<span title="Vrij toegankelijk">🆓</span>') +
           '<span style="font-size:18px;color:#bbb;">›</span>' +
         '</div>' +
       '</button>'
@@ -214,7 +214,7 @@
       nextHtml =
         '<div class="block-label"><span class="bar"></span>Volgende voorstelling</div>' +
         '<div class="next-card">' +
-          '<div class="next-card__strip"><span>Hierna op de planning</span><span>' + (ne.ticket ? '🎟️ ticket' : '🆓 vrij') + '</span></div>' +
+          '<div class="next-card__strip"><span>Hierna op de planning</span><span>' + (ne.ticket ? '🎟️ kaartje in bezit' : '🆓 vrij') + '</span></div>' +
           '<div class="next-card__body">' +
             '<span class="genre-tag" style="background:' + g.color + '">' + g.label + '</span>' +
             '<div class="next-card__title" style="margin-top:8px;">' + esc(ne.title) + '</div>' +
@@ -387,7 +387,7 @@
         '<div class="kv"><span class="k">Tijd</span><span class="v">' + esc(ev.start) + (ev.end ? ' – ' + esc(ev.end) : '') + '</span></div>' +
         '<div class="kv"><span class="k">Locatie</span><span class="v">' + esc(ev.venue.name) + '</span></div>' +
         (ev.venue.area ? '<div class="kv"><span class="k">Plaats</span><span class="v">' + esc(ev.venue.area) + '</span></div>' : '') +
-        '<div class="kv"><span class="k">Toegang</span><span class="v">' + (ev.ticket ? '🎟️ Ticket nodig' : '🆓 Vrij toegankelijk') + '</span></div>' +
+        '<div class="kv"><span class="k">Toegang</span><span class="v">' + (ev.ticket ? '🎟️ Kaartje in bezit' : '🆓 Vrij toegankelijk') + '</span></div>' +
       '</div>' +
       '<p class="detail-desc">' + esc(ev.description || "") + '</p>' +
       routeButtons(ev) +
