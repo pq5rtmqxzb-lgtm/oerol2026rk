@@ -34,7 +34,7 @@ window.OERALL_DATA = {
   },
 
   // ---- De hele groep -------------------------------------------------------
-  crew: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori", "Fabian", "Jaco", "Joeri"],
+  crew: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Fabian", "Jaco", "Joeri"],
 
   // ---- Ons huis ------------------------------------------------------------
   home: {
@@ -71,8 +71,8 @@ window.OERALL_DATA = {
 
   // ---- Wie slaapt welke nacht (Huisbezetting) ------------------------------
   occupancy: [
-    { date: "2026-06-15", who: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"] },
-    { date: "2026-06-16", who: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"] },
+    { date: "2026-06-15", who: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies"] },
+    { date: "2026-06-16", who: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies"] },
     { date: "2026-06-17", who: ["Rik", "Kevin", "Marianne", "Marieke", "Jaco"] },
     { date: "2026-06-18", who: ["Rik", "Kevin", "Marianne", "Marieke", "Fabian", "Jaco"] },
     { date: "2026-06-19", who: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"] },
