@@ -1,19 +1,23 @@
 /*
  * ============================================================================
- *  OERALL — your Oerol 2026 content file
+ *  OERALL — onze Oerol 2026 content file
  * ============================================================================
- *  This is the ONLY file you need to edit to make the app yours.
- *  Everything below is sample data for Oerol 2026 (12–21 June, Terschelling).
+ *  Dit is het enige bestand dat je hoeft te bewerken om de app bij te werken.
+ *  Inhoud is gebaseerd op ons groepsschema (Oerol 2026, 12–21 juni, Terschelling).
  *
- *  HOW TO EDIT:
- *   - Change `home` to the house you're actually staying in.
- *   - Add / edit / remove items in `events` (keep the shape the same).
- *   - For each venue, fill in `lat` / `lng` so it shows on the map + routing.
- *     Tip: right-click a spot in Google Maps → "What's here?" to get coords.
- *   - `attendees` are just names (free text) — who from the group is going.
- *   - Update `links` if any official URL changes.
+ *  BEWERKEN:
+ *   - `home`     → ons huis (Castor in Oosterend).
+ *   - `events`   → de gekozen voorstelling per dag (de "blauwe" keuze) + extra's.
+ *   - `crew`     → onze hele groep.
+ *   - `occupancy`→ wie slaapt welke nacht.
  *
- *  No build step. Just save and reload the page.
+ *  LET OP locaties: Oerol publiceert geen exacte GPS-coördinaten, dus de
+ *  speldjes op de kaart staan BIJ BENADERING (venue.approx = true). De knop
+ *  "Route ernaartoe" zoekt op naam in Google Maps (venue.query), dus de
+ *  navigatie klopt ook als het speldje een paar honderd meter verkeerd staat.
+ *  Weet je de exacte plek? Zet dan `lat`/`lng` goed en haal `approx` weg.
+ *
+ *  Geen build-stap. Opslaan en pagina verversen.
  * ============================================================================
  */
 
@@ -23,50 +27,59 @@ window.OERALL_DATA = {
     name: "Oerol",
     edition: 45,
     year: 2026,
-    start: "2026-06-12", // first day
-    end: "2026-06-21", // last day
+    start: "2026-06-12", // eerste festivaldag
+    end: "2026-06-21", // laatste festivaldag
     island: "Terschelling",
     tagline: "Theater, muziek en kunst in het landschap",
   },
 
-  // ---- The group (used as default attendees + the 'who's going' chips) -----
-  crew: ["Koen", "Sanne", "Bram", "Iris", "Tom", "Noor"],
+  // ---- De hele groep -------------------------------------------------------
+  crew: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori", "Fabian", "Jaco", "Joeri"],
 
-  // ---- The house we sleep in (EDIT THIS) -----------------------------------
+  // ---- Ons huis ------------------------------------------------------------
   home: {
-    name: "Vakantiehuis Duinroos",
-    address: "Oosterburen 12, Midsland",
-    lat: 53.3886,
-    lng: 5.2823,
-    arrival: "2026-06-12",
-    departure: "2026-06-22",
-    wifi: { network: "Duinroos-Gast", password: "wadlopen2026" },
+    name: "Vakantiehuis Castor",
+    address: "Oosterend, Terschelling",
+    // Coördinaten van Oosterend (bij benadering — zet exact op het adres van Castor).
+    lat: 53.4366,
+    lng: 5.4181,
+    approx: true,
+    arrival: "2026-06-15", // eerste nacht: ma 15 juni
+    departure: "2026-06-21", // iedereen vertrekt zo 21 juni
+    wifi: { network: "nog invullen", password: "nog invullen" },
     notes: [
-      "Sleutel: in het sleutelkastje naast de voordeur (code 1982).",
-      "Fietsen staan in de schuur — slot hangt aan de eerste fiets.",
-      "Afval: restafval op donderdag buiten zetten, GFT in de groene bak.",
-      "Verwarming: thermostaat in de hal, graag op 18° bij vertrek.",
+      "7 slaapplekken — zie 'Wie slaapt wanneer' hieronder.",
+      "Oosterend ligt aan de oostkant; de meeste voorstellingen zijn westelijker, dus neem de fiets.",
+      "Vul hier de praktische dingen in zodra we ze van Castor weten (sleutel, afval, verwarming).",
     ],
     houseRules: [
-      "Schoenen uit in de woonkamer 🙂",
-      "Na 23:00 rustig aan i.v.m. de buren.",
-      "Roken alleen buiten op het terras.",
-      "Laat de boel netjes achter — samen opruimen op de laatste ochtend.",
+      "Laat de boel netjes achter — samen opruimen op de laatste ochtend (zo 21 juni).",
+      "Na 23:00 een beetje rustig i.v.m. de buren.",
+      "Zondag checken hoe laat iedereen weg gaat — boot op tijd halen!",
     ],
     nearby: [
-      { label: "Supermarkt (Spar Midsland)", note: "± 600 m, dagelijks open" },
-      { label: "Bakker Stavenuiter", note: "verse broodjes vanaf 7:30" },
-      { label: "Fietsverhuur Zeilen", note: "voor extra fietsen / reparatie" },
-      { label: "Bushalte lijn 1", note: "richting West & Oosterend" },
+      { label: "Oosterend dorp", note: "klein, gezellig oostelijk dorp" },
+      { label: "Strand bij paal 18–20", note: "dichtstbijzijnde strandopgang" },
+      { label: "Fietsroute naar West", note: "± 12 km langs de zuidkant" },
     ],
     emergency: [
       { label: "Alarmnummer", value: "112" },
       { label: "Huisarts Terschelling", value: "0562 442 181" },
-      { label: "Verhuurder (Anneke)", value: "06 1234 5678" },
+      { label: "Verhuurder Castor", value: "nog invullen" },
     ],
   },
 
-  // ---- Quick links (EDIT IF URLS CHANGE) -----------------------------------
+  // ---- Wie slaapt welke nacht (Huisbezetting) ------------------------------
+  occupancy: [
+    { date: "2026-06-15", who: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"] },
+    { date: "2026-06-16", who: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"] },
+    { date: "2026-06-17", who: ["Rik", "Kevin", "Marianne", "Marieke", "Jaco"] },
+    { date: "2026-06-18", who: ["Rik", "Kevin", "Marianne", "Marieke", "Fabian", "Jaco"] },
+    { date: "2026-06-19", who: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"] },
+    { date: "2026-06-20", who: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"] },
+  ],
+
+  // ---- Quick links ---------------------------------------------------------
   links: {
     oerol: { label: "Officiële Oerol-website", url: "https://oerol.nl/en/", icon: "🎭" },
     krant: { label: "Oerol Krant (dagkrant)", url: "https://oerol.nl/nl/oerol-krant/", icon: "📰" },
@@ -78,134 +91,126 @@ window.OERALL_DATA = {
     instagram: { label: "Oerol op Instagram", url: "https://www.instagram.com/oerolterschelling/", icon: "📸" },
   },
 
-  // ---- Events we plan to visit (EDIT FREELY) -------------------------------
-  // genre options used for color coding:
-  //   "theater" | "muziek" | "straat" | "woord" | "kunst" | "eten"
+  // ---- Onze voorstellingen -------------------------------------------------
+  // De "blauwe" keuze per dag uit ons schema, plus een paar vriendenacties.
+  // genre: "theater" | "muziek" | "straat" | "woord" | "kunst" | "eten" | "dans"
+  // attendees = wie er die dag op het eiland is (uit de huisbezetting).
   events: [
     {
-      id: "ev1",
-      title: "Brandende Branding",
-      artist: "Toneelgroep Wad",
-      genre: "theater",
-      day: "2026-06-12",
-      start: "20:30",
-      end: "22:00",
-      venue: { name: "Stortemelk (duinen)", area: "West-Terschelling", lat: 53.3705, lng: 5.2130 },
-      description:
-        "Locatietheater hoog in de duinen bij zonsondergang. Neem een warme jas mee — de zeewind trekt op zodra het donker wordt.",
-      attendees: ["Koen", "Sanne", "Bram", "Iris", "Tom", "Noor"],
-      ticket: true,
-    },
-    {
-      id: "ev2",
-      title: "Ochtendgloren Concert",
-      artist: "Ensemble Tij",
-      genre: "muziek",
-      day: "2026-06-13",
-      start: "09:00",
-      end: "10:00",
-      venue: { name: "Groene Strand", area: "West-Terschelling", lat: 53.3582, lng: 5.2050 },
-      description:
-        "Akoestisch ochtendconcert op het strand. Op blote voeten in het zand, koffie verkrijgbaar bij de kar.",
-      attendees: ["Sanne", "Iris", "Noor"],
-      ticket: false,
-    },
-    {
-      id: "ev3",
-      title: "De Vloedlijn",
-      artist: "Compagnie Noorderlicht",
-      genre: "theater",
-      day: "2026-06-13",
-      start: "16:00",
-      end: "17:30",
-      venue: { name: "Westerkeyn (festivalhart)", area: "West-Terschelling", lat: 53.3596, lng: 5.2168 },
-      description:
-        "Indrukwekkende voorstelling in de grote festivaltent. Aanrader om vroeg te zijn voor een goede plek.",
-      attendees: ["Koen", "Bram", "Tom"],
-      ticket: true,
-    },
-    {
-      id: "ev4",
-      title: "Straattheater Parade",
-      artist: "Diverse makers",
-      genre: "straat",
-      day: "2026-06-14",
-      start: "14:00",
-      end: "17:00",
-      venue: { name: "Dorpsplein Midsland", area: "Midsland", lat: 53.3905, lng: 5.2799 },
-      description:
-        "Doorlopend straattheater door het dorp. Loop zo binnen, gratis, gezellig met z'n allen.",
-      attendees: ["Koen", "Sanne", "Bram", "Iris", "Tom", "Noor"],
-      ticket: false,
-    },
-    {
-      id: "ev5",
-      title: "Woorden in de Wind",
-      artist: "Spoken word collectief",
-      genre: "woord",
+      id: "ma15-notyet",
+      title: "Not Yet",
+      artist: "Ivgi&Greben",
+      genre: "dans",
       day: "2026-06-15",
-      start: "19:00",
-      end: "20:15",
-      venue: { name: "Formerumerbos", area: "Formerum", lat: 53.4035, lng: 5.3210 },
+      start: "15:00",
+      venue: { name: "Duinen", area: "Terschelling", lat: 53.412, lng: 5.355, approx: true, query: "Ivgi&Greben Not Yet Oerol Terschelling" },
       description:
-        "Spoken word tussen de bomen. Intieme setting, beperkt aantal plekken.",
-      attendees: ["Iris", "Noor", "Sanne"],
+        "Het Leeuwarder dansgezelschap Ivgi&Greben keert terug met Not Yet: dansers én publiek leggen samen een route af door een onbekend landschap, op zoek naar houvast en verbinding met de plek en met elkaar.",
+      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"],
       ticket: true,
     },
     {
-      id: "ev6",
-      title: "Lichtinstallatie 'Getij'",
-      artist: "Studio Wad",
-      genre: "kunst",
+      id: "di16-aisademeter",
+      title: "Aisa Demeter",
+      artist: "Anne-Fay Kops / Orkater",
+      genre: "theater",
       day: "2026-06-16",
-      start: "22:00",
-      end: "23:30",
-      venue: { name: "Strandpaal 8", area: "Midsland aan Zee", lat: 53.4008, lng: 5.2760 },
+      start: "18:45",
+      venue: { name: "Festivalhart (West)", area: "West-Terschelling", lat: 53.360, lng: 5.217, approx: true, query: "Aisa Demeter Orkater Oerol Terschelling" },
       description:
-        "Beeldende kunst die meebeweegt met het tij. Het mooist na zonsondergang. Fiets, want het is een eind lopen vanaf de weg.",
-      attendees: ["Koen", "Sanne", "Bram", "Iris", "Tom", "Noor"],
+        "Orkater komt met speciale Oerol-edities van Aisa Demeter. Een moderne muzikale mythe over de kracht van woede, met indringende zangmelodieën, Caribische samples en diepe baslijnen.",
+      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Anja", "Marlies", "Lori"],
+      ticket: true,
+    },
+    {
+      id: "wo17-destreken",
+      title: "De Streken (vriendenactie)",
+      artist: "Marc van Vliet",
+      genre: "kunst",
+      day: "2026-06-17",
+      start: "10:00",
+      venue: { name: "Dijk Perkweg (loc. 36)", area: "Oost-Terschelling", lat: 53.430, lng: 5.400, approx: true, query: "Marc van Vliet De Streken Oerol Terschelling" },
+      description:
+        "Vriendenactie: uitleg bij het getijdenkunstwerk De Streken. Marieke's keuze — sluit gerust aan.",
+      attendees: ["Marieke"],
       ticket: false,
     },
     {
-      id: "ev7",
-      title: "Wad-diner onder de sterren",
-      artist: "Oerol x lokale koks",
-      genre: "eten",
-      day: "2026-06-17",
-      start: "18:30",
-      end: "21:00",
-      venue: { name: "Polder bij Hoorn", area: "Hoorn", lat: 53.3760, lng: 5.3530 },
-      description:
-        "Langgerekt diner in de polder met lokale producten. Reserveren verplicht — wij hebben een tafel van 6.",
-      attendees: ["Koen", "Sanne", "Bram", "Iris", "Tom", "Noor"],
-      ticket: true,
-    },
-    {
-      id: "ev8",
-      title: "Oosterend Live",
-      artist: "The Dune Brothers",
+      id: "wo17-dansenaanzee",
+      title: "Dansen aan zee (vriendenactie)",
+      artist: "Oerol",
       genre: "muziek",
-      day: "2026-06-19",
-      start: "21:00",
-      end: "23:30",
-      venue: { name: "Haven Oosterend", area: "Oosterend", lat: 53.4283, lng: 5.3965 },
+      day: "2026-06-17",
+      start: "20:00",
+      venue: { name: "Strand", area: "Noordkant", lat: 53.410, lng: 5.345, approx: true, query: "Dansen aan zee Oerol Terschelling strand" },
       description:
-        "Stevige avond livemuziek aan het oostelijke puntje van het eiland. Laatste bus mis je gegarandeerd — neem de fiets.",
-      attendees: ["Koen", "Bram", "Tom", "Noor"],
+        "Onze woensdagavond: dansen aan zee. Gezellig met de groep die er die dag is.",
+      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Jaco"],
+      ticket: false,
+    },
+    {
+      id: "do18-reinaard",
+      title: "ReinAard",
+      artist: "Tom Lanoye",
+      genre: "woord",
+      day: "2026-06-18",
+      start: "14:00",
+      venue: { name: "Festivalhart (West)", area: "West-Terschelling", lat: 53.361, lng: 5.218, approx: true, query: "Tom Lanoye ReinAard Oerol Terschelling" },
+      description:
+        "Woordkunst van Tom Lanoye: een eigentijdse ReinAard. Onze donderdagmiddag-keuze.",
+      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Fabian", "Jaco"],
       ticket: true,
     },
     {
-      id: "ev9",
-      title: "Slotvoorstelling: Eilandgloed",
-      artist: "Grote ensemble",
+      id: "do18-starmap",
+      title: "Star Map",
+      artist: "Cello Octet Amsterdam / Kate Moore",
+      genre: "theater",
+      day: "2026-06-18",
+      start: "22:15",
+      venue: { name: "Duinen (avond)", area: "Midsland aan Zee", lat: 53.401, lng: 5.276, approx: true, query: "Cello Octet Amsterdam Star Map Oerol Terschelling" },
+      description:
+        "Late voorstelling onder de sterren met het Cello Octet Amsterdam en muziek van Kate Moore. Neem een warme jas mee — het wordt fris en donker.",
+      attendees: ["Rik", "Kevin", "Marianne", "Marieke", "Fabian", "Jaco"],
+      ticket: true,
+    },
+    {
+      id: "vr19-bambie",
+      title: "Bambie Gaat Tot De Bodem",
+      artist: "Bambie",
+      genre: "theater",
+      day: "2026-06-19",
+      start: "11:30",
+      venue: { name: "Festivalhart (West)", area: "West-Terschelling", lat: 53.360, lng: 5.216, approx: true, query: "Bambie Gaat Tot De Bodem Oerol Terschelling" },
+      description:
+        "Fysiek, absurd en hilarisch beeldend theater van Bambie. Onze vrijdagochtend-keuze.",
+      attendees: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"],
+      ticket: true,
+    },
+    {
+      id: "za20-northsidestory",
+      title: "North Side Story",
+      artist: "YoungGangsters",
+      genre: "theater",
+      day: "2026-06-20",
+      start: "15:30",
+      venue: { name: "Buitenlocatie (duinen)", area: "Midsland-Noord", lat: 53.405, lng: 5.290, approx: true, query: "North Side Story YoungGangsters Oerol Terschelling" },
+      description:
+        "Buitenspektakel: een actie-musical en moderne Romeo & Julia van YoungGangsters, over de spanning tussen oude en nieuwe eilanders — trots versus verandering, vlees versus veggie, pils versus kombucha.",
+      attendees: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"],
+      ticket: true,
+    },
+    {
+      id: "zo21-azc",
+      title: "AZC de Musical",
+      artist: "TOBAL",
       genre: "theater",
       day: "2026-06-21",
-      start: "20:00",
-      end: "22:00",
-      venue: { name: "Brandaris / Haven", area: "West-Terschelling", lat: 53.3625, lng: 5.2196 },
+      start: "13:00",
+      venue: { name: "Voormalig AZC-terrein", area: "West-Terschelling", lat: 53.366, lng: 5.235, approx: true, query: "AZC de Musical TOBAL Oerol Terschelling" },
       description:
-        "Grootse afsluiter onder de vuurtoren. Het hele eiland komt samen — kom op tijd.",
-      attendees: ["Koen", "Sanne", "Bram", "Iris", "Tom", "Noor"],
+        "TOBAL speelt AZC de Musical op de plek waar ooit een asielzoekerscentrum stond. Waar nu dure appartementen staan, klinkt nog steeds de roep: AZC ga weg. Onze afsluiter op zondag — check je boottijd!",
+      attendees: ["Rik", "Kevin", "Marianne", "Fabian", "Jaco", "Joeri"],
       ticket: true,
     },
   ],

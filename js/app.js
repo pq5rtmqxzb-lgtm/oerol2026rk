@@ -69,6 +69,7 @@
     woord: { label: "Woord", color: "#7a5cff" },
     kunst: { label: "Kunst", color: "#d6336c" },
     eten: { label: "Eten", color: "#2f9e44" },
+    dans: { label: "Dans", color: "#9c36b5" },
   };
   function genre(g) { return GENRE[g] || { label: g || "Oerol", color: "#ff5a2c" }; }
 
@@ -264,8 +265,10 @@
         '<span><i class="legend-pin" style="background:#2e7d9a;"></i> Muziek</span>' +
         '<span><i class="legend-pin" style="background:#f0a500;"></i> Straat</span>' +
         '<span><i class="legend-pin" style="background:#7a5cff;"></i> Woord</span>' +
+        '<span><i class="legend-pin" style="background:#9c36b5;"></i> Dans</span>' +
         '<span><i class="legend-pin" style="background:#2f9e44;"></i> Eten</span>' +
       '</div>' +
+      '<div class="callout">📍 De speldjes staan <b>bij benadering</b> — Oerol geeft geen exacte coördinaten. De knop "Route ernaartoe" zoekt op naam in Maps, dus de navigatie klopt wél.</div>' +
       '<div class="callout">💡 De kaart heeft internet nodig om te laden. Tip: open hem één keer thuis met wifi, dan zit hij in het geheugen.</div>';
     return html;
   }
@@ -283,6 +286,16 @@
     }).join("");
     var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + h.lat + "," + h.lng;
 
+    var occ = (D.occupancy || []).map(function (n) {
+      var chips = n.who.map(function (name) { return '<span class="who__chip">' + esc(name) + '</span>'; }).join("");
+      return (
+        '<div class="occ-row">' +
+          '<div class="occ-row__day">' + fmtDay(n.date) + '<small>' + n.who.length + '/7</small></div>' +
+          '<div class="occ-row__who">' + chips + '</div>' +
+        '</div>'
+      );
+    }).join("");
+
     return (
       '<div class="eyebrow">Ons onderkomen</div>' +
       '<h1 class="section-title">' + esc(h.name) + '</h1>' +
@@ -295,6 +308,9 @@
         '<a class="btn btn--primary" target="_blank" rel="noopener" href="' + mapsUrl + '">📍 Open in Maps</a>' +
         '<a class="btn btn--ghost" href="#/map">🗺️ Op onze kaart</a>' +
       '</div>' +
+
+      (occ ? '<div class="block-label"><span class="bar"></span>Wie slaapt wanneer</div>' +
+        '<div class="card"><div class="occ">' + occ + '</div></div>' : '') +
 
       '<div class="block-label"><span class="bar"></span>Wifi</div>' +
       '<div class="wifi-box"><div class="net">Netwerk: ' + esc(h.wifi.network) + '</div><div class="pw">' + esc(h.wifi.password) + '</div></div>' +

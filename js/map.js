@@ -21,6 +21,7 @@ window.OerallMap = (function () {
     woord: "#7a5cff",
     kunst: "#d6336c",
     eten: "#2f9e44",
+    dans: "#9c36b5",
   };
 
   function venuePin(color) {
@@ -43,13 +44,18 @@ window.OerallMap = (function () {
     });
   }
 
-  // Build a Google Maps cycling-directions URL (works on all phones/desktop)
+  // Build a Google Maps cycling-directions URL (works on all phones/desktop).
+  // Prefer a text query for the destination (venue.query) so navigation is
+  // accurate even though our on-map pin is only approximate; fall back to coords.
   function directionsUrl(from, to) {
     var base = "https://www.google.com/maps/dir/?api=1";
+    var dest = (to && to.query)
+      ? encodeURIComponent(to.query)
+      : (to.lat + "," + to.lng);
     return (
       base +
       "&origin=" + from.lat + "," + from.lng +
-      "&destination=" + to.lat + "," + to.lng +
+      "&destination=" + dest +
       "&travelmode=bicycling"
     );
   }
