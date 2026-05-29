@@ -1,6 +1,7 @@
 /* OERALL service worker — offline app shell.
-   Bump CACHE when you change files so clients refresh. */
-var CACHE = "oerall-v1";
+   Strategy: network-first for our own files (so updates always show when
+   online), cache only as offline fallback. Bump CACHE on big changes. */
+var CACHE = "oerall-v2";
 var ASSETS = [
   "./",
   "./index.html",
@@ -57,16 +58,18 @@ self.addEventListener("fetch", function (e) {
     return;
   }
 
-  // App shell: cache-first.
+  // App shell (same-origin): network-first so a new deploy always wins when
+  // online; fall back to the cached copy (or index.html) when offline.
   e.respondWith(
-    caches.match(req).then(function (cached) {
-      return cached || fetch(req).then(function (res) {
-        if (url.origin === location.origin) {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      }).catch(function () {
+    fetch(req).then(function (res) {
+      if (url.origin === location.origin && res && res.ok) {
+        var copy = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(req).then(function (cached) {
+        if (cached) return cached;
         if (req.mode === "navigate") return caches.match("./index.html");
       });
     })
