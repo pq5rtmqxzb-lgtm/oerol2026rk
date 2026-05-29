@@ -76,15 +76,61 @@
   }
 
   var GENRE = {
-    theater: { label: "Theater", color: "#ff5a2c" },
-    muziek: { label: "Muziek", color: "#2e7d9a" },
-    straat: { label: "Straat", color: "#f0a500" },
-    woord: { label: "Woord", color: "#7a5cff" },
-    kunst: { label: "Kunst", color: "#d6336c" },
-    eten: { label: "Eten", color: "#2f9e44" },
-    dans: { label: "Dans", color: "#9c36b5" },
+    theater: { label: "Theater", color: "#cf6b43" },
+    muziek: { label: "Muziek", color: "#3c6a78" },
+    straat: { label: "Straat", color: "#b07a2b" },
+    woord: { label: "Woord", color: "#5d6c8a" },
+    kunst: { label: "Kunst", color: "#9c5a78" },
+    eten: { label: "Eten", color: "#6f8048" },
+    dans: { label: "Dans", color: "#7a4a62" },
   };
-  function genre(g) { return GENRE[g] || { label: g || "Oerol", color: "#ff5a2c" }; }
+  function genre(g) { return GENRE[g] || { label: g || "Oerol", color: "#cf6b43" }; }
+
+  // ---- Natuurkunst per pagina (expositie-banners) --------------------------
+  var ART = {
+    events: { img: "img/duinen.svg", eyebrow: "Oerol " + D.festival.year, title: "Programma" },
+    map: { img: "img/wad.svg", eyebrow: "Terschelling", title: "De kaart" },
+    home: { img: "img/kwelder.svg", eyebrow: "Ons onderkomen", title: D.home.name },
+    more: { img: "img/strand.svg", eyebrow: "Handig", title: "Meer Oerol" },
+  };
+  function banner(key, titleHtml) {
+    var a = ART[key];
+    return (
+      '<header class="banner">' +
+        '<img class="banner__img" src="' + a.img + '" alt="" aria-hidden="true">' +
+        '<div class="banner__scrim"></div>' +
+        '<div class="banner__text">' +
+          '<span class="banner__eyebrow">' + esc(a.eyebrow) + '</span>' +
+          '<h1 class="banner__title">' + (titleHtml || esc(a.title)) + '</h1>' +
+        '</div>' +
+      '</header>'
+    );
+  }
+
+  // ---- Galerij: "Terschelling in beeld" ------------------------------------
+  function galleryHtml(limit) {
+    var items = (D.gallery || []);
+    if (!items.length) return "";
+    if (limit) items = items.slice(0, limit);
+    var plates = items.map(function (g, i) {
+      var no = String(i + 1).padStart(2, "0");
+      return (
+        '<figure class="plate">' +
+          '<img class="plate__img" src="' + esc(g.img) + '" alt="' + esc(g.title) + ' — Terschelling" loading="lazy">' +
+          '<figcaption class="plate__cap">' +
+            '<span class="plate__no">No. ' + no + '</span>' +
+            '<div class="plate__title">' + esc(g.title) + '</div>' +
+            '<p class="plate__text">' + esc(g.caption) + '</p>' +
+          '</figcaption>' +
+        '</figure>'
+      );
+    }).join("");
+    return (
+      '<div class="block-label"><span class="bar"></span>Terschelling in beeld</div>' +
+      '<p class="gallery-hint">Een kleine collectie van het eiland — veeg opzij. →</p>' +
+      '<div class="gallery">' + plates + '</div>'
+    );
+  }
 
   // ---- Weer (open-meteo, geen API-key) -------------------------------------
   // WMO weather_code -> { emoji, label }. Compacte map, dekt de gangbare codes.
@@ -189,11 +235,15 @@
     }
 
     var hero =
-      '<section class="hero">' +
-        '<span class="hero__edition">' + D.festival.edition + 'e editie · ' + D.festival.year + '</span>' +
-        '<h1 class="hero__title">ONZE<br><span class="yellow">OEROL</span></h1>' +
-        '<div class="hero__dates">12 – 21 juni · ' + esc(D.festival.island) + '</div>' +
-        heroExtra +
+      '<section class="art-hero">' +
+        '<img class="art-hero__img" src="img/brandaris.svg" alt="" aria-hidden="true">' +
+        '<div class="art-hero__scrim"></div>' +
+        '<div class="art-hero__content">' +
+          '<span class="art-hero__edition">' + D.festival.edition + 'e editie · ' + D.festival.year + '</span>' +
+          '<h1 class="art-hero__title">Onze<br><em>Oerol</em></h1>' +
+          '<div class="art-hero__dates">12 – 21 juni · ' + esc(D.festival.island) + '</div>' +
+          heroExtra +
+        '</div>' +
       '</section>';
 
     // Weerkaart (open-meteo) — wordt na render asynchroon gevuld door loadWeather().
@@ -252,7 +302,7 @@
         link(D.links.oerol) + link(D.links.krant) + link(D.links.program) + link(D.links.tickets) +
       '</div>';
 
-    return hero + weatherHtml + nextHtml + schedHtml + ql;
+    return hero + weatherHtml + nextHtml + schedHtml + ql + galleryHtml(3);
   }
 
   // ---- Weer ophalen + tonen ------------------------------------------------
@@ -364,8 +414,7 @@
       : '<div class="card muted">Geen voorstellingen op deze dag.</div>';
 
     return (
-      '<div class="eyebrow">Oerol ' + D.festival.year + '</div>' +
-      '<h1 class="section-title">Ons <span class="accent">programma</span></h1>' +
+      banner("events", 'Ons <em>programma</em>') +
       '<div class="day-filter">' + pills + '</div>' +
       list
     );
@@ -397,8 +446,7 @@
 
   function pageMap(params) {
     var html =
-      '<div class="eyebrow">Terschelling</div>' +
-      '<h1 class="section-title">De <span class="accent">kaart</span></h1>' +
+      banner("map", 'De <em>kaart</em>') +
       '<div class="map-wrap"><iframe id="gmap" title="Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>' +
       '<div class="map-route-bar"><button class="btn btn--dark btn--block" id="route-next">🚲 Route naar volgende voorstelling</button></div>' +
       '<div class="map-actions" id="map-actions"></div>' +
@@ -434,8 +482,7 @@
     }).join("");
 
     return (
-      '<div class="eyebrow">Ons onderkomen</div>' +
-      '<h1 class="section-title">' + esc(h.name) + '</h1>' +
+      banner("home") +
       '<div class="card">' +
         '<div class="kv"><span class="k">Adres</span><span class="v">' + esc(h.address) + '</span></div>' +
         '<div class="kv"><span class="k">Aankomst</span><span class="v">' + fmtDayLong(h.arrival) + '</span></div>' +
@@ -469,8 +516,7 @@
   function pageMore() {
     var L = D.links;
     return (
-      '<div class="eyebrow">Handig</div>' +
-      '<h1 class="section-title">Meer <span class="accent">Oerol</span></h1>' +
+      banner("more", 'Meer <em>Oerol</em>') +
       '<div class="quicklinks">' +
         link(L.oerol, true) +
         link(L.krant) + link(L.program) +
@@ -478,6 +524,7 @@
         link(L.ferry) + link(L.weather) +
         link(L.instagram) +
       '</div>' +
+      galleryHtml() +
       '<div class="block-label"><span class="bar"></span>Onze crew</div>' +
       '<div class="card">' + whoChips(D.crew).replace('<span class="who__label">Wie gaan er:</span>', '<span class="who__label">Met z\'n allen:</span>') + '</div>' +
       '<div class="callout">📲 Tip: voeg Oerall toe aan je beginscherm (deel-knop → "Zet op beginscherm") zodat hij als app opent.</div>' +
@@ -587,7 +634,7 @@
   var krantLink = document.getElementById("topbar-krant");
   if (krantLink && D.links.krant) krantLink.href = D.links.krant.url;
   var sub = document.getElementById("topbar-sub");
-  if (sub) sub.textContent = "Onze Oerol · " + D.festival.island;
+  if (sub) sub.textContent = D.festival.island + " in beeld · Oerol " + D.festival.year;
 
   window.addEventListener("hashchange", render);
   render();

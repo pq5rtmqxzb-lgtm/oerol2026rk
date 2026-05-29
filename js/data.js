@@ -94,6 +94,42 @@ window.OERALL_DATA = {
     instagram: { label: "Oerol op Instagram", url: "https://www.instagram.com/oerolterschelling/", icon: "📸" },
   },
 
+  // ---- Terschelling in beeld (galerij op 'Vandaag' en 'Meer') --------------
+  // Handgemaakte natuurkunst van het eiland. img verwijst naar de SVG's in /img.
+  // title + caption verschijnen als museumlabel onder elke plaat.
+  gallery: [
+    {
+      img: "img/brandaris.svg",
+      title: "De Brandaris",
+      caption: "De oudste vuurtoren van Nederland houdt al sinds 1594 de wacht over West. Bij laagstaande zon kleurt het baken oranje boven de duinen.",
+    },
+    {
+      img: "img/duinen.svg",
+      title: "Duinen & helmgras",
+      caption: "Zandpaden slingeren door het golvende duinlandschap. Het helmgras houdt het eiland bijeen — buig je oor en je hoort het ruisen.",
+    },
+    {
+      img: "img/wad.svg",
+      title: "Het Wad",
+      caption: "Bij eb valt de Waddenzee droog tot glanzende slikplaten vol wadvogels. UNESCO-werelderfgoed, en het grootste podium van Oerol.",
+    },
+    {
+      img: "img/kwelder.svg",
+      title: "Kwelder & schapen",
+      caption: "Op de zilte graslanden achter de dijk grazen schapen tussen het lamsoor. Wijds, weids en typisch Terschellings.",
+    },
+    {
+      img: "img/strand.svg",
+      title: "Noordzeestrand",
+      caption: "Dertig kilometer onafgebroken strand langs de hele noordkant. Ruimte genoeg voor een voorstelling onder de sterren.",
+    },
+    {
+      img: "img/cranberry.svg",
+      title: "Cranberryveld",
+      caption: "In de natte duinvalleien groeien de wereldberoemde Terschellinger cranberries — volgens de sage aangespoeld uit een gestrand vat.",
+    },
+  ],
+
   // ---- Onze voorstellingen -------------------------------------------------
   // De "blauwe" keuze per dag uit ons schema. Woensdag 17 juni is een rustdag
   // (geen vaste keuze). genre: "theater" | "muziek" | "straat" | "woord" |

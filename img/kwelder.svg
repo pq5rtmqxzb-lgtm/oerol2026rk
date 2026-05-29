@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Kwelder met grazende schapen onder een wolkenlucht op Terschelling">
+  <defs>
+    <linearGradient id="k-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b7d2d8"/>
+      <stop offset="0.65" stop-color="#dde7df"/>
+      <stop offset="1" stop-color="#edefe0"/>
+    </linearGradient>
+    <linearGradient id="k-field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a9a5b"/>
+      <stop offset="1" stop-color="#6b7a44"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#k-sky)"/>
+  <!-- big soft clouds -->
+  <g fill="#ffffff"><g opacity="0.85"><ellipse cx="210" cy="96" rx="120" ry="34"/><ellipse cx="300" cy="108" rx="80" ry="24"/><ellipse cx="130" cy="110" rx="64" ry="20"/></g>
+    <g opacity="0.7"><ellipse cx="620" cy="78" rx="110" ry="30"/><ellipse cx="700" cy="92" rx="64" ry="18"/></g></g>
+
+  <!-- horizon sea sliver -->
+  <rect x="0" y="244" width="800" height="20" fill="#5a8ca0" opacity="0.8"/>
+  <!-- low dike line -->
+  <path d="M0 264 C 200 250, 420 268, 620 256 C 700 251, 760 262, 800 258 L800 290 L0 290 Z" fill="#9aa56a"/>
+
+  <!-- rolling kwelder field -->
+  <path d="M0 300 C 200 280, 420 312, 620 292 C 700 285, 760 304, 800 298 L800 500 L0 500 Z" fill="url(#k-field)"/>
+  <!-- creek through the salt marsh -->
+  <path d="M300 500 C 330 430, 270 392, 330 350 C 356 332, 330 318, 300 322 C 330 336, 300 372, 276 398 C 244 436, 296 452, 280 500 Z" fill="#7c93a0" opacity="0.7"/>
+  <!-- patches of sea lavender (purple) -->
+  <g fill="#9c5a78" opacity="0.55">
+    <ellipse cx="120" cy="400" rx="46" ry="12"/><ellipse cx="560" cy="420" rx="60" ry="14"/><ellipse cx="700" cy="360" rx="40" ry="10"/>
+  </g>
+
+  <!-- sheep -->
+  <g>
+    <g transform="translate(170 360)">
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#f3efe6"/><ellipse cx="-22" cy="-6" rx="12" ry="13" fill="#3a3531"/>
+      <rect x="-6" y="16" width="4" height="14" fill="#3a3531"/><rect x="10" y="16" width="4" height="14" fill="#3a3531"/>
+    </g>
+    <g transform="translate(250 392) scale(0.8)">
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#f3efe6"/><ellipse cx="22" cy="-6" rx="12" ry="13" fill="#3a3531"/>
+      <rect x="-6" y="16" width="4" height="14" fill="#3a3531"/><rect x="10" y="16" width="4" height="14" fill="#3a3531"/>
+    </g>
+    <g transform="translate(470 372) scale(0.92)">
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#f3efe6"/><ellipse cx="-22" cy="-6" rx="12" ry="13" fill="#3a3531"/>
+      <rect x="-6" y="16" width="4" height="14" fill="#3a3531"/><rect x="10" y="16" width="4" height="14" fill="#3a3531"/>
+    </g>
+    <g transform="translate(610 410) scale(0.7)">
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#f3efe6"/><ellipse cx="22" cy="-6" rx="12" ry="13" fill="#3a3531"/>
+      <rect x="-6" y="16" width="4" height="14" fill="#3a3531"/><rect x="10" y="16" width="4" height="14" fill="#3a3531"/>
+    </g>
+  </g>
+
+  <!-- foreground grass strokes -->
+  <g stroke="#41502d" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8">
+    <path d="M40 500 q -4 -34 -12 -52"/><path d="M52 500 q 2 -30 8 -50"/><path d="M64 500 q 8 -28 4 -48"/>
+    <path d="M740 500 q -4 -34 -12 -52"/><path d="M752 500 q 2 -30 8 -50"/><path d="M764 500 q 8 -28 4 -48"/>
+  </g>
+</svg>

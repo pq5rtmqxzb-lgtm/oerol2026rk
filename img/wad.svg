@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="De Waddenzee bij eb met wadplaten en vogels boven Terschelling">
+  <defs>
+    <linearGradient id="w-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9c4cb"/>
+      <stop offset="0.7" stop-color="#cfdfd9"/>
+      <stop offset="1" stop-color="#e7ead8"/>
+    </linearGradient>
+    <linearGradient id="w-water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a8ca0"/>
+      <stop offset="1" stop-color="#3c6a78"/>
+    </linearGradient>
+    <linearGradient id="w-flat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bfae86"/>
+      <stop offset="1" stop-color="#a89a72"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#w-sky)"/>
+  <circle cx="640" cy="120" r="40" fill="#f4e9c8" opacity="0.8"/>
+  <g fill="#ffffff" opacity="0.5"><ellipse cx="230" cy="86" rx="100" ry="20"/><ellipse cx="150" cy="96" rx="56" ry="14"/></g>
+
+  <!-- water band -->
+  <rect x="0" y="230" width="800" height="70" fill="url(#w-water)"/>
+  <g opacity="0.45" fill="#cfe2e0"><rect x="60" y="248" width="160" height="3" rx="1.5"/><rect x="360" y="262" width="220" height="3" rx="1.5"/><rect x="560" y="240" width="150" height="3" rx="1.5"/></g>
+
+  <!-- mudflats with tidal channels -->
+  <path d="M0 300 C 180 282, 340 312, 520 296 C 660 284, 740 308, 800 300 L800 500 L0 500 Z" fill="url(#w-flat)"/>
+  <!-- glistening tidal pools / channels -->
+  <g fill="#6f9aa6" opacity="0.85">
+    <path d="M120 500 C 150 430, 90 392, 150 348 C 176 330, 150 318, 120 320 C 150 332, 120 366, 96 392 C 64 430, 108 452, 92 500 Z"/>
+    <path d="M520 500 C 560 440, 500 404, 560 360 C 540 392, 600 414, 560 460 C 548 478, 560 490, 556 500 Z"/>
+  </g>
+  <g fill="#8fb0b8" opacity="0.6">
+    <ellipse cx="300" cy="360" rx="60" ry="10"/><ellipse cx="680" cy="380" rx="70" ry="11"/><ellipse cx="220" cy="430" rx="50" ry="8"/>
+  </g>
+  <!-- ripple texture in mud -->
+  <g stroke="#9a8c64" stroke-width="2" opacity="0.4" fill="none">
+    <path d="M340 410 q 30 -8 60 0 t 60 0"/><path d="M340 426 q 30 -8 60 0 t 60 0"/><path d="M340 442 q 30 -8 60 0 t 60 0"/>
+  </g>
+
+  <!-- birds -->
+  <g stroke="#2f2a26" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.85">
+    <path d="M250 150 q 14 -12 28 0 q 14 -12 28 0"/>
+    <path d="M330 176 q 11 -9 22 0 q 11 -9 22 0"/>
+    <path d="M430 132 q 11 -9 22 0 q 11 -9 22 0"/>
+    <path d="M500 168 q 8 -7 16 0 q 8 -7 16 0"/>
+  </g>
+  <!-- a wading bird on the flat -->
+  <g transform="translate(440 322)" fill="#2f2a26">
+    <ellipse cx="0" cy="0" rx="14" ry="7"/><path d="M-12 0 q -10 -2 -16 -10" stroke="#2f2a26" stroke-width="2" fill="none"/>
+    <rect x="2" y="6" width="2" height="16"/><rect x="8" y="6" width="2" height="16"/>
+  </g>
+</svg>
