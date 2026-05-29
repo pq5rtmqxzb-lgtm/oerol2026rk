@@ -49,12 +49,15 @@ window.OerallMap = (function () {
   // accurate even though our on-map pin is only approximate; fall back to coords.
   function directionsUrl(from, to) {
     var base = "https://www.google.com/maps/dir/?api=1";
+    var origin = (from && from.query)
+      ? encodeURIComponent(from.query)
+      : (from.lat + "," + from.lng);
     var dest = (to && to.query)
       ? encodeURIComponent(to.query)
       : (to.lat + "," + to.lng);
     return (
       base +
-      "&origin=" + from.lat + "," + from.lng +
+      "&origin=" + origin +
       "&destination=" + dest +
       "&travelmode=bicycling"
     );

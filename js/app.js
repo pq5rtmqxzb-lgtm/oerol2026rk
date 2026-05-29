@@ -284,7 +284,8 @@
       var tel = String(e.value).replace(/\s/g, "");
       return '<div class="kv"><span class="k">' + esc(e.label) + '</span><span class="v"><a href="tel:' + esc(tel) + '">' + esc(e.value) + '</a></span></div>';
     }).join("");
-    var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + h.lat + "," + h.lng;
+    var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" +
+      (h.query ? encodeURIComponent(h.query) : (h.lat + "," + h.lng));
 
     var occ = (D.occupancy || []).map(function (n) {
       var chips = n.who.map(function (name) { return '<span class="who__chip">' + esc(name) + '</span>'; }).join("");
