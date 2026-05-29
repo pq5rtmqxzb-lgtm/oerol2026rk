@@ -67,8 +67,8 @@
   }
   /* slightly deepen the hero so bright accents don't glow too hard */
   .hero { background: linear-gradient(155deg, #0c302e 0%, #103f3c 55%, #155049 100%); }
-  /* keep the Leaflet map readable: light frame around light OSM tiles */
-  #map { border-color: var(--line); }
+  /* keep the map frame readable in dark mode */
+  #gmap { border-color: var(--line); }
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -381,7 +381,9 @@ button { font-family: inherit; }
 
 /* Map */
 .map-wrap { position: relative; }
-#map {
+#gmap {
+  display: block;
+  width: 100%;
   height: calc(100vh - var(--topbar-h) - var(--tabbar-h) - var(--safe-top) - var(--safe-bottom) - 150px);
   min-height: 320px;
   border-radius: var(--radius);
@@ -391,28 +393,23 @@ button { font-family: inherit; }
   z-index: 1;
 }
 .map-route-bar { margin-top: 12px; }
-.map-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 12px; font-weight: 600; }
-.map-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.legend-pin { width: 12px; height: 12px; border-radius: 50%; }
 
-.home-pin {
-  background: var(--teal); width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg); border: 3px solid #fff; box-shadow: var(--shadow);
-  display: grid; place-items: center;
-}
-.home-pin span { transform: rotate(45deg); font-size: 14px; }
-.venue-pin {
-  width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-  border: 3px solid #fff; box-shadow: var(--shadow); display: grid; place-items: center;
-}
-.venue-pin span { transform: rotate(45deg); font-size: 12px; color: #fff; font-weight: 800; }
+/* Selected-place actions (open in Maps / route) */
+.map-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.map-actions:empty { display: none; }
 
-.leaflet-popup-content { font-family: var(--body); }
-.leaflet-popup-content b { font-size: 15px; }
-.popup-btn {
-  display: inline-block; margin-top: 8px; background: var(--coral); color: #fff;
-  padding: 7px 12px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13px;
+/* Venue selector chips */
+.map-venues { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.venue-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 12px; border-radius: 999px;
+  border: 2px solid var(--line); background: var(--paper);
+  font-family: var(--body); font-size: 13px; font-weight: 700; color: var(--ink);
+  cursor: pointer; transition: border-color .15s, background .15s;
 }
+.venue-chip:hover { border-color: var(--ink); }
+.venue-chip.is-active { border-color: var(--coral); background: rgba(255, 90, 44, 0.10); }
+.chip-dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; }
 
 /* Notice / callout */
 .callout {

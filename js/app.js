@@ -399,19 +399,13 @@
     var html =
       '<div class="eyebrow">Terschelling</div>' +
       '<h1 class="section-title">De <span class="accent">kaart</span></h1>' +
-      '<div class="map-wrap"><div id="map"></div></div>' +
+      '<div class="map-wrap"><iframe id="gmap" title="Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>' +
       '<div class="map-route-bar"><button class="btn btn--dark btn--block" id="route-next">🚲 Route naar volgende voorstelling</button></div>' +
-      '<div class="map-legend">' +
-        '<span><i class="legend-pin" style="background:#0e3a38;border:2px solid #fff;"></i> Ons huis</span>' +
-        '<span><i class="legend-pin" style="background:#ff5a2c;"></i> Theater</span>' +
-        '<span><i class="legend-pin" style="background:#2e7d9a;"></i> Muziek</span>' +
-        '<span><i class="legend-pin" style="background:#f0a500;"></i> Straat</span>' +
-        '<span><i class="legend-pin" style="background:#7a5cff;"></i> Woord</span>' +
-        '<span><i class="legend-pin" style="background:#9c36b5;"></i> Dans</span>' +
-        '<span><i class="legend-pin" style="background:#2f9e44;"></i> Eten</span>' +
-      '</div>' +
-      '<div class="callout">📍 De speldjes staan <b>bij benadering</b> — Oerol geeft geen exacte coördinaten. De knop "Route ernaartoe" zoekt op naam in Maps, dus de navigatie klopt wél.</div>' +
-      '<div class="callout">💡 De kaart heeft internet nodig om te laden. Tip: open hem één keer thuis met wifi, dan zit hij in het geheugen.</div>';
+      '<div class="map-actions" id="map-actions"></div>' +
+      '<div class="block-label"><span class="bar"></span>Kies een locatie</div>' +
+      '<div class="map-venues" id="map-venues"></div>' +
+      '<div class="callout">📍 De kaart gebruikt <b>Google Maps</b> en zoekt op het echte adres, dus elke locatie staat op de juiste plek. Tik op een locatie of "Open in Google Maps" voor de exacte plek en navigatie.</div>' +
+      '<div class="callout">💡 De kaart heeft internet nodig om te laden.</div>';
     return html;
   }
 
@@ -542,7 +536,6 @@
     }
     if (r.top === "map") {
       window.OerallMap.init();
-      window.OerallMap.refresh();
       var btn = document.getElementById("route-next");
       if (btn) btn.addEventListener("click", function () {
         var ne = nextEvent(new Date());
@@ -551,7 +544,7 @@
       // focus a specific venue if requested
       if (r.query.focus) {
         var ev = D.events.filter(function (e) { return e.venue.name === r.query.focus; })[0];
-        if (ev) window.OerallMap.routeTo(ev.venue);
+        if (ev) window.OerallMap.focus(ev.venue, false);
       }
     }
   }

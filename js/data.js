@@ -11,11 +11,10 @@
  *   - `crew`     → onze hele groep.
  *   - `occupancy`→ wie slaapt welke nacht.
  *
- *  LET OP locaties: Oerol publiceert geen exacte GPS-coördinaten, dus de
- *  speldjes op de kaart staan BIJ BENADERING (venue.approx = true). De knop
- *  "Route ernaartoe" zoekt op naam in Google Maps (venue.query), dus de
- *  navigatie klopt ook als het speldje een paar honderd meter verkeerd staat.
- *  Weet je de exacte plek? Zet dan `lat`/`lng` goed en haal `approx` weg.
+ *  LET OP locaties: de kaart is Google Maps en zoekt op het echte adres/naam
+ *  (venue.query), dus elke locatie staat op de juiste plek — ook voor "Open in
+ *  Google Maps" en de route. `lat`/`lng` zijn alleen nog een optionele
+ *  terugvaloptie; pas vooral `query` aan als een locatie verkeerd staat.
  *
  *  Geen build-stap. Opslaan en pagina verversen.
  * ============================================================================

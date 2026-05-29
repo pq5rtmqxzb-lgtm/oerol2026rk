@@ -1,7 +1,7 @@
 /* OERALL service worker — offline app shell.
    Strategy: network-first for our own files (so updates always show when
    online), cache only as offline fallback. Bump CACHE on big changes. */
-var CACHE = "oerall-v6";
+var CACHE = "oerall-v7";
 var ASSETS = [
   "./",
   "./index.html",
@@ -12,14 +12,7 @@ var ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./icons/icon.svg",
-  "./vendor/leaflet/leaflet.css",
-  "./vendor/leaflet/leaflet.js",
-  "./vendor/leaflet/images/marker-icon.png",
-  "./vendor/leaflet/images/marker-icon-2x.png",
-  "./vendor/leaflet/images/marker-shadow.png",
-  "./vendor/leaflet/images/layers.png",
-  "./vendor/leaflet/images/layers-2x.png"
+  "./icons/icon.svg"
 ];
 
 self.addEventListener("install", function (e) {
@@ -45,8 +38,8 @@ self.addEventListener("fetch", function (e) {
   if (req.method !== "GET") return;
   var url = new URL(req.url);
 
-  // Map tiles & fonts: network-first, fall back to cache if available.
-  var isTile = /tile\.openstreetmap\.org/.test(url.host) || /fonts\.(googleapis|gstatic)\.com/.test(url.host);
+  // Fonts: network-first, fall back to cache if available.
+  var isTile = /fonts\.(googleapis|gstatic)\.com/.test(url.host);
   if (isTile) {
     e.respondWith(
       fetch(req).then(function (res) {
