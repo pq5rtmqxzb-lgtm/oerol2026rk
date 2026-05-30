@@ -84,14 +84,15 @@ window.OERALL_DATA = {
 
   // ---- Quick links ---------------------------------------------------------
   links: {
-    oerol: { label: "Officiële Oerol-website", url: "https://oerol.nl/en/", icon: "🎭" },
-    krant: { label: "Oerol Krant (dagkrant)", url: "https://oerol.nl/nl/oerol-krant/", icon: "📰" },
-    program: { label: "Volledig programma", url: "https://oerol.nl/en/programmeoverview/", icon: "📅" },
-    tickets: { label: "Tickets & verkoop", url: "https://oerol.nl/en/plan-your-visit/tickets-and-sales/", icon: "🎟️" },
-    map: { label: "Oerol plattegrond", url: "https://oerol.nl/en/plan-your-visit/", icon: "🗺️" },
-    ferry: { label: "Veerboot (Rederij Doeksen)", url: "https://www.rederij-doeksen.nl/en", icon: "⛴️" },
-    weather: { label: "Weer op Terschelling", url: "https://www.knmi.nl/nederland-nu/weer/waarschuwingen", icon: "🌤️" },
-    instagram: { label: "Oerol op Instagram", url: "https://www.instagram.com/oerolterschelling/", icon: "📸" },
+    // icon = naam uit de icoonset in js/app.js (ICONS); valt terug op ruwe tekst/emoji.
+    oerol: { label: "Officiële Oerol-website", url: "https://oerol.nl/en/", icon: "events" },
+    krant: { label: "Oerol Krant (dagkrant)", url: "https://oerol.nl/nl/oerol-krant/", icon: "news" },
+    program: { label: "Volledig programma", url: "https://oerol.nl/en/programmeoverview/", icon: "calendar" },
+    tickets: { label: "Tickets & verkoop", url: "https://oerol.nl/en/plan-your-visit/tickets-and-sales/", icon: "ticket" },
+    map: { label: "Oerol plattegrond", url: "https://oerol.nl/en/plan-your-visit/", icon: "map" },
+    ferry: { label: "Veerboot (Rederij Doeksen)", url: "https://www.rederij-doeksen.nl/en", icon: "ferry" },
+    weather: { label: "Weer op Terschelling", url: "https://www.knmi.nl/nederland-nu/weer/waarschuwingen", icon: "w-partly" },
+    instagram: { label: "Oerol op Instagram", url: "https://www.instagram.com/oerolterschelling/", icon: "camera" },
   },
 
   // ---- Terschelling in beeld (galerij op 'Vandaag' en 'Meer') --------------

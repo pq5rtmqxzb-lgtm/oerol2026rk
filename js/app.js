@@ -86,6 +86,50 @@
   };
   function genre(g) { return GENRE[g] || { label: g || "Oerol", color: "#cf6b43" }; }
 
+  // ---- Icoonset (handgetekend, in dezelfde stijl als de natuurkunst) --------
+  // Lijn-iconen op currentColor, zodat ze meekleuren met tekst en dark mode.
+  var ICONS = {
+    "today": "<circle cx=\"12\" cy=\"12\" r=\"4.3\"/><path d=\"M12 2.6v2.4M12 19v2.4M21.4 12H19M5 12H2.6M18.7 5.3l-1.7 1.7M7 17l-1.7 1.7M18.7 18.7 17 17M7 7 5.3 5.3\"/>",
+    "events": "<path d=\"M4 5h6.5v6c0 3-1.6 5-3.25 5S4 14 4 11Z\"/><path d=\"M13.5 5H20v6c0 3-1.6 5-3.25 5S13.5 14 13.5 11Z\"/><path d=\"M6 9.2h2.5M15.5 9.2H18\"/><path d=\"M5.6 12.6c.6.9 2.2.9 2.8 0M15.6 12.6c.6.9 2.2.9 2.8 0\"/>",
+    "map": "<path d=\"M9 4 3 6.2v13.8l6-2.2 6 2.2 6-2.2V6l-6 2.2Z\"/><path d=\"M9 4v13.8M15 8.2V22\"/><circle cx=\"6\" cy=\"10\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/>",
+    "home": "<path d=\"M3.5 11.5 12 4l8.5 7.5\"/><path d=\"M5.5 10v9.5h13V10\"/><path d=\"M10 19.5v-5h4v5\"/>",
+    "more": "<circle cx=\"12\" cy=\"12\" r=\"8.4\"/><path d=\"m14.8 9.2-1.9 5-5 1.9 1.9-5Z\" fill=\"currentColor\" fill-opacity=\".16\"/><circle cx=\"12\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/>",
+    "ticket": "<path d=\"M4 6.5h16a1 1 0 0 1 1 1V10a2 2 0 0 0 0 4v2.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V14a2 2 0 0 0 0-4V7.5a1 1 0 0 1 1-1Z\" fill=\"currentColor\" fill-opacity=\".16\"/><path d=\"M14 7v2.2M14 14.8V17\"/>",
+    "free": "<path d=\"M4 6.5h16a1 1 0 0 1 1 1V10a2 2 0 0 0 0 4v2.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V14a2 2 0 0 0 0-4V7.5a1 1 0 0 1 1-1Z\"/><path d=\"m8.2 12 2.1 2.2 4-4.4\"/>",
+    "hourglass": "<path d=\"M7 3.5h10M7 20.5h10\"/><path d=\"M7.5 3.5c0 4 4 5.5 4.5 8.5-.5 3-4.5 4.5-4.5 8.5\"/><path d=\"M16.5 3.5c0 4-4 5.5-4.5 8.5.5 3 4.5 4.5 4.5 8.5\"/><path d=\"M9.3 18.5c.7-1.6 2-2.5 2.7-2.5s2 .9 2.7 2.5Z\" fill=\"currentColor\" stroke=\"none\"/>",
+    "spinner": "<path d=\"M12 3a9 9 0 1 0 9 9\" stroke-linecap=\"round\"/>",
+    "clock": "<circle cx=\"12\" cy=\"12\" r=\"8.4\"/><path d=\"M12 7.4V12l3.2 2\"/>",
+    "calendar": "<rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15.5\" rx=\"2.2\"/><path d=\"M3.5 9.3h17M8 3v3.6M16 3v3.6\"/><circle cx=\"8.4\" cy=\"13\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"12\" cy=\"13\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.6\" cy=\"13\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/>",
+    "pin": "<path d=\"M12 21.5c0 0-7-6.4-7-11.5a7 7 0 0 1 14 0c0 5.1-7 11.5-7 11.5Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.6\"/>",
+    "bike": "<circle cx=\"6\" cy=\"16.5\" r=\"3.4\"/><circle cx=\"18\" cy=\"16.5\" r=\"3.4\"/><path d=\"M6 16.5 10 9h5l2.6 7.5M9 9h-1.6M14.5 9l-3.4 7.5M14.8 9.2 16 7h2\"/>",
+    "share": "<path d=\"M12 3.4v11.2M8.4 7 12 3.4 15.6 7\"/><path d=\"M6 11.5v8.1h12v-8.1\"/>",
+    "wind": "<path d=\"M3 9h11a2.4 2.4 0 1 0-2.4-2.6\"/><path d=\"M3 13.5h15a2.4 2.4 0 1 1-2.4 2.6\"/><path d=\"M3 18h8.5\"/>",
+    "news": "<path d=\"M4 5.5h13v13a1.5 1.5 0 0 1-1.5 1.5H5a1 1 0 0 1-1-1Z\"/><path d=\"M17 9h3v9.5a1.5 1.5 0 0 1-1.5 1.5\"/><path d=\"M7 9h7M7 12.3h7M7 15.6h4.5\"/>",
+    "check": "<path d=\"M5 12.5 10 17.5 19 6.5\"/>",
+    "note": "<path d=\"M9.5 3.5 14.5 3.5 13.8 9 16.5 12 7.5 12 10.2 9Z\" fill=\"currentColor\" fill-opacity=\".16\"/><path d=\"M12 12v8\"/>",
+    "bulb": "<path d=\"M9 17h6M10 20h4\"/><path d=\"M8 13.2A5 5 0 1 1 16 13.2c-.9 1-1.5 1.8-1.5 3.1h-5C9.5 15 8.9 14.2 8 13.2Z\"/>",
+    "camera": "<rect x=\"3\" y=\"6.5\" width=\"18\" height=\"13\" rx=\"2.4\"/><path d=\"M8.5 6.5 10 4h4l1.5 2.5\"/><circle cx=\"12\" cy=\"13\" r=\"3.4\"/>",
+    "ferry": "<path d=\"M4 16 5.5 11h13L20 16\"/><path d=\"M3 16.5c1.6 1.4 2.7 1.4 4.3 0 1.6 1.4 2.8 1.4 4.4 0 1.6 1.4 2.8 1.4 4.4 0 1.6 1.4 2.7 1.4 4.3 0\"/><path d=\"M8 11V8h8v3M12 4.5v3\"/>",
+    "link": "<path d=\"M9.5 14.5 14.5 9.5\"/><path d=\"M8 11 6 13a3.2 3.2 0 0 0 4.5 4.5l2-2\"/><path d=\"M16 13l2-2A3.2 3.2 0 0 0 13.5 6.5l-2 2\"/>",
+    "w-clear": "<circle cx=\"12\" cy=\"12\" r=\"4.2\"/><path d=\"M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2 5.6 5.6\"/>",
+    "w-partly": "<circle cx=\"8.5\" cy=\"8\" r=\"3\"/><path d=\"M8.5 2.8v1.6M3.3 8H4.9M12.1 4.4l-1.1 1.1M5.1 5.5 4 4.4\"/><path d=\"M9 19.5h8.2a3.4 3.4 0 0 0 .2-6.8 4.6 4.6 0 0 0-8.7-1A3.6 3.6 0 0 0 9 19.5Z\"/>",
+    "w-cloudy": "<path d=\"M7.5 18.5h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 18.5Z\"/>",
+    "w-fog": "<path d=\"M7.5 14.5h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 14.5Z\"/><path d=\"M5 18h14M7 21h11\"/>",
+    "w-drizzle": "<path d=\"M7.5 14.5h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 14.5Z\"/><path d=\"M9 17.5v2M13 17.5v2.5M17 17.5v2\"/>",
+    "w-rain": "<path d=\"M7.5 13.5h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 13.5Z\"/><path d=\"M8.5 16.5 7.5 20M12.2 16.5 11.2 20M15.9 16.5 14.9 20\"/>",
+    "w-showers": "<path d=\"M7.5 12.5h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 12.5Z\"/><path d=\"M9 15.5 7 20M13 15.5 11 20M17 15.5 15 20\"/>",
+    "w-snow": "<path d=\"M7.5 13h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 13Z\"/><path d=\"M9 17.5v2M12 16.5v3M15 17.5v2\" /><circle cx=\"9\" cy=\"18.5\" r=\".4\" fill=\"currentColor\"/>",
+    "w-thunder": "<path d=\"M7.5 12.5h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 12.5Z\"/><path d=\"m12.5 14-2.5 3.6h2.4L10.6 21\" /><path d=\"m12.5 14-2.5 3.6h2.4L10.6 21\" fill=\"currentColor\" fill-opacity=\".15\"/>",
+    "w-default": "<path d=\"M12 13.5V6.5a2 2 0 0 1 4 0v7a3.6 3.6 0 1 1-4 0Z\"/><circle cx=\"14\" cy=\"16.6\" r=\"1.4\" fill=\"currentColor\" stroke=\"none\"/>",
+  };
+  function icon(name, cls) {
+    var inner = ICONS[name];
+    if (!inner) return "";
+    return '<svg class="ic' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ' +
+      'aria-hidden="true">' + inner + '</svg>';
+  }
+
   // ---- Natuurkunst per pagina (expositie-banners) --------------------------
   var ART = {
     events: { img: "img/duinen.svg", eyebrow: "Oerol " + D.festival.year, title: "Programma" },
@@ -135,16 +179,16 @@
   // ---- Weer (open-meteo, geen API-key) -------------------------------------
   // WMO weather_code -> { emoji, label }. Compacte map, dekt de gangbare codes.
   function weatherCode(c) {
-    if (c === 0) return { emoji: "☀️", label: "Helder" };
-    if (c === 1 || c === 2) return { emoji: "🌤️", label: "Half bewolkt" };
-    if (c === 3) return { emoji: "☁️", label: "Bewolkt" };
-    if (c === 45 || c === 48) return { emoji: "🌫️", label: "Mist" };
-    if (c >= 51 && c <= 57) return { emoji: "🌦️", label: "Motregen" };
-    if (c >= 61 && c <= 67) return { emoji: "🌧️", label: "Regen" };
-    if (c >= 71 && c <= 77) return { emoji: "🌨️", label: "Sneeuw" };
-    if (c >= 80 && c <= 82) return { emoji: "🌧️", label: "Buien" };
-    if (c >= 95) return { emoji: "⛈️", label: "Onweer" };
-    return { emoji: "🌡️", label: "Weer" };
+    if (c === 0) return { icon: "w-clear", label: "Helder" };
+    if (c === 1 || c === 2) return { icon: "w-partly", label: "Half bewolkt" };
+    if (c === 3) return { icon: "w-cloudy", label: "Bewolkt" };
+    if (c === 45 || c === 48) return { icon: "w-fog", label: "Mist" };
+    if (c >= 51 && c <= 57) return { icon: "w-drizzle", label: "Motregen" };
+    if (c >= 61 && c <= 67) return { icon: "w-rain", label: "Regen" };
+    if (c >= 71 && c <= 77) return { icon: "w-snow", label: "Sneeuw" };
+    if (c >= 80 && c <= 82) return { icon: "w-showers", label: "Buien" };
+    if (c >= 95) return { icon: "w-thunder", label: "Onweer" };
+    return { icon: "w-default", label: "Weer" };
   }
   function compass(deg) {
     var dirs = ["N", "NO", "O", "ZO", "Z", "ZW", "W", "NW"];
@@ -171,12 +215,12 @@
         '</div>' +
         '<div class="event-row__main">' +
           '<div class="event-row__title">' + esc(ev.title) + '</div>' +
-          '<div class="event-row__venue">📍 ' + esc(ev.venue.name) + (ev.venue.area ? ' · ' + esc(ev.venue.area) : '') + '</div>' +
+          '<div class="event-row__venue">' + icon('pin') + '<span>' + esc(ev.venue.name) + (ev.venue.area ? ' · ' + esc(ev.venue.area) : '') + '</span></div>' +
           '<span class="genre-tag" style="background:' + g.color + ';margin-top:8px;">' + g.label + '</span>' +
         '</div>' +
         '<div class="event-row__tail">' +
-          (ev.ticket ? '<span title="Kaartje in bezit">🎟️</span>' : '<span title="Vrij toegankelijk">🆓</span>') +
-          '<span style="font-size:18px;color:#bbb;">›</span>' +
+          (ev.ticket ? '<span class="tix tix--has" title="Kaartje in bezit">' + icon('ticket') + '</span>' : '<span class="tix" title="Vrij toegankelijk">' + icon('free') + '</span>') +
+          '<span class="chev">›</span>' +
         '</div>' +
       '</button>'
     );
@@ -189,7 +233,7 @@
   }
 
   function shareButton(ev) {
-    return '<button class="btn btn--ghost" data-share="' + esc(ev.id) + '">📤 Deel</button>';
+    return '<button class="btn btn--ghost" data-share="' + esc(ev.id) + '">' + icon('share') + ' Deel</button>';
   }
 
   function routeButtons(ev) {
@@ -198,8 +242,8 @@
     if (venue && venue.lat) {
       var url = window.OerallMap.directionsUrl(D.home, venue);
       buttons +=
-        '<a class="btn btn--primary" target="_blank" rel="noopener" href="' + url + '">🚲 Route ernaartoe</a>' +
-        '<a class="btn btn--ghost" href="#/map?focus=' + encodeURIComponent(venue.name) + '">🗺️ Op de kaart</a>';
+        '<a class="btn btn--primary" target="_blank" rel="noopener" href="' + url + '">' + icon('bike') + ' Route ernaartoe</a>' +
+        '<a class="btn btn--ghost" href="#/map?focus=' + encodeURIComponent(venue.name) + '">' + icon('map') + ' Op de kaart</a>';
     }
     buttons += shareButton(ev);
     return '<div class="btn-row">' + buttons + '</div>';
@@ -249,7 +293,7 @@
     // Weerkaart (open-meteo) — wordt na render asynchroon gevuld door loadWeather().
     var weatherHtml =
       '<div class="weather" id="weather" hidden>' +
-        '<div class="weather__ico" data-w="ico">🌡️</div>' +
+        '<div class="weather__ico" data-w="ico">' + icon('w-default') + '</div>' +
         '<div class="weather__main">' +
           '<div class="weather__temp"><span data-w="temp">–</span>°<span class="weather__label" data-w="label"></span></div>' +
           '<div class="weather__wind" data-w="wind"></div>' +
@@ -264,16 +308,16 @@
       nextHtml =
         '<div class="block-label"><span class="bar"></span>Volgende voorstelling</div>' +
         '<div class="next-card">' +
-          '<div class="next-card__strip"><span>Hierna op de planning</span><span>' + (ne.ticket ? '🎟️ kaartje in bezit' : '🆓 vrij') + '</span></div>' +
+          '<div class="next-card__strip"><span>Hierna op de planning</span><span class="strip-tix">' + (ne.ticket ? icon('ticket') + ' kaartje in bezit' : icon('free') + ' vrij') + '</span></div>' +
           '<div class="next-card__body">' +
             '<span class="genre-tag" style="background:' + g.color + '">' + g.label + '</span>' +
             '<div class="next-card__title" style="margin-top:8px;">' + esc(ne.title) + '</div>' +
             '<div class="next-card__artist">' + esc(ne.artist || "") + '</div>' +
             '<div class="next-card__meta">' +
-              '<span class="meta-chip">🗓️ ' + fmtDay(ne.day) + '</span>' +
-              '<span class="meta-chip">🕒 ' + esc(ne.start) + (ne.end ? '–' + esc(ne.end) : '') + '</span>' +
-              '<span class="meta-chip">📍 ' + esc(ne.venue.name) + '</span>' +
-              '<span class="meta-chip meta-chip--rel" data-rel="next"' + (relTime(parseDateTime(ne.day, ne.start), now) ? '' : ' hidden') + '>⏳ <span data-rel-txt>' + esc(relTime(parseDateTime(ne.day, ne.start), now)) + '</span></span>' +
+              '<span class="meta-chip">' + icon('calendar') + ' ' + fmtDay(ne.day) + '</span>' +
+              '<span class="meta-chip">' + icon('clock') + ' ' + esc(ne.start) + (ne.end ? '–' + esc(ne.end) : '') + '</span>' +
+              '<span class="meta-chip">' + icon('pin') + ' ' + esc(ne.venue.name) + '</span>' +
+              '<span class="meta-chip meta-chip--rel" data-rel="next"' + (relTime(parseDateTime(ne.day, ne.start), now) ? '' : ' hidden') + '>' + icon('hourglass') + ' <span data-rel-txt>' + esc(relTime(parseDateTime(ne.day, ne.start), now)) + '</span></span>' +
             '</div>' +
             routeButtons(ne) +
             whoChips(ne.attendees) +
@@ -313,11 +357,11 @@
     var ms = w.wind;
     var bft = beaufort(ms);
     var kmh = Math.round(ms * 3.6);
-    box.querySelector('[data-w="ico"]').textContent = wc.emoji;
+    box.querySelector('[data-w="ico"]').innerHTML = icon(wc.icon);
     box.querySelector('[data-w="temp"]').textContent = Math.round(w.temp);
     box.querySelector('[data-w="label"]').textContent = wc.label + (stale ? " · laatst bekend" : "");
-    box.querySelector('[data-w="wind"]').textContent =
-      "💨 " + bft + " Bft " + compass(w.dir) + " · " + kmh + " km/u";
+    box.querySelector('[data-w="wind"]').innerHTML =
+      icon('wind') + ' ' + bft + " Bft " + compass(w.dir) + " · " + kmh + " km/u";
     box.hidden = false;
   }
 
@@ -326,10 +370,21 @@
     var lng = (D.festival && D.festival.lng) || D.home.lng;
     if (lat == null || lng == null) return;
 
-    // Toon meteen de laatst bekende waarde (offline-vriendelijk).
+    // Toon meteen de laatst bekende waarde (offline-vriendelijk), anders een
+    // wachtsymbool (spinner) terwijl we de verwachting ophalen.
     var cached = null;
     try { cached = JSON.parse(localStorage.getItem("oerall.weather") || "null"); } catch (e) {}
-    if (cached && cached.temp != null) paintWeather(cached, true);
+    var hadCache = !!(cached && cached.temp != null);
+    if (hadCache) {
+      paintWeather(cached, true);
+    } else {
+      var box0 = document.getElementById("weather");
+      if (box0) {
+        box0.querySelector('[data-w="ico"]').innerHTML = icon("spinner", "ic--spin");
+        box0.querySelector('[data-w="label"]').textContent = "weer laden…";
+        box0.hidden = false;
+      }
+    }
 
     var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lng +
       "&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m" +
@@ -340,7 +395,10 @@
       var w = { temp: c.temperature_2m, code: c.weather_code, wind: c.wind_speed_10m, dir: c.wind_direction_10m };
       try { localStorage.setItem("oerall.weather", JSON.stringify(w)); } catch (e) {}
       paintWeather(w, false);
-    }).catch(function () { /* offline: gecachte waarde blijft staan, of kaart blijft verborgen */ });
+    }).catch(function () {
+      // offline: gecachte waarde blijft staan; anders de (spinner-)kaart weer verbergen
+      if (!hadCache) { var b = document.getElementById("weather"); if (b) b.hidden = true; }
+    });
   }
 
   // ---- Live ticker voor 'Vandaag' ------------------------------------------
@@ -390,8 +448,9 @@
   }
 
   function link(l, feature) {
+    var ico = ICONS[l.icon] ? icon(l.icon) : l.icon; // named icon, anders ruwe (emoji) fallback
     return '<a class="ql ' + (feature ? "ql--feature" : "") + '" target="_blank" rel="noopener" href="' + esc(l.url) + '">' +
-      '<span class="ql__ico">' + l.icon + '</span><span>' + esc(l.label) + '</span></a>';
+      '<span class="ql__ico">' + ico + '</span><span>' + esc(l.label) + '</span></a>';
   }
 
   function pageEvents(params) {
@@ -436,7 +495,7 @@
         '<div class="kv"><span class="k">Tijd</span><span class="v">' + esc(ev.start) + (ev.end ? ' – ' + esc(ev.end) : '') + '</span></div>' +
         '<div class="kv"><span class="k">Locatie</span><span class="v">' + esc(ev.venue.name) + '</span></div>' +
         (ev.venue.area ? '<div class="kv"><span class="k">Plaats</span><span class="v">' + esc(ev.venue.area) + '</span></div>' : '') +
-        '<div class="kv"><span class="k">Toegang</span><span class="v">' + (ev.ticket ? '🎟️ Kaartje in bezit' : '🆓 Vrij toegankelijk') + '</span></div>' +
+        '<div class="kv"><span class="k">Toegang</span><span class="v">' + (ev.ticket ? icon('ticket') + ' Kaartje in bezit' : icon('free') + ' Vrij toegankelijk') + '</span></div>' +
       '</div>' +
       '<p class="detail-desc">' + esc(ev.description || "") + '</p>' +
       routeButtons(ev) +
@@ -448,21 +507,21 @@
     var html =
       banner("map", 'De <em>kaart</em>') +
       '<div class="map-wrap"><iframe id="gmap" title="Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>' +
-      '<div class="map-route-bar"><button class="btn btn--dark btn--block" id="route-next">🚲 Route naar volgende voorstelling</button></div>' +
+      '<div class="map-route-bar"><button class="btn btn--dark btn--block" id="route-next">' + icon('bike') + ' Route naar volgende voorstelling</button></div>' +
       '<div class="map-actions" id="map-actions"></div>' +
       '<div class="block-label"><span class="bar"></span>Kies een locatie</div>' +
       '<div class="map-venues" id="map-venues"></div>' +
-      '<div class="callout">📍 De kaart gebruikt <b>Google Maps</b> en zoekt op het echte adres, dus elke locatie staat op de juiste plek. Tik op een locatie of "Open in Google Maps" voor de exacte plek en navigatie.</div>' +
-      '<div class="callout">💡 De kaart heeft internet nodig om te laden.</div>';
+      '<div class="callout">' + icon('pin') + '<span>De kaart gebruikt <b>Google Maps</b> en zoekt op het echte adres, dus elke locatie staat op de juiste plek. Tik op een locatie of "Open in Google Maps" voor de exacte plek en navigatie.</span></div>' +
+      '<div class="callout">' + icon('bulb') + '<span>De kaart heeft internet nodig om te laden.</span></div>';
     return html;
   }
 
   function pageHome() {
     var h = D.home;
-    var rules = h.houseRules.map(function (r) { return '<li><span class="ic">✅</span><span>' + esc(r) + '</span></li>'; }).join("");
-    var notes = h.notes.map(function (r) { return '<li><span class="ic">📌</span><span>' + esc(r) + '</span></li>'; }).join("");
+    var rules = h.houseRules.map(function (r) { return '<li>' + icon('check') + '<span>' + esc(r) + '</span></li>'; }).join("");
+    var notes = h.notes.map(function (r) { return '<li>' + icon('note') + '<span>' + esc(r) + '</span></li>'; }).join("");
     var nearby = h.nearby.map(function (n) {
-      return '<li><span class="ic">📍</span><span><b>' + esc(n.label) + '</b><br><span class="muted">' + esc(n.note) + '</span></span></li>';
+      return '<li>' + icon('pin') + '<span><b>' + esc(n.label) + '</b><br><span class="muted">' + esc(n.note) + '</span></span></li>';
     }).join("");
     var emerg = h.emergency.map(function (e) {
       var tel = String(e.value).replace(/\s/g, "");
@@ -489,8 +548,8 @@
         '<div class="kv"><span class="k">Vertrek</span><span class="v">' + fmtDayLong(h.departure) + '</span></div>' +
       '</div>' +
       '<div class="btn-row">' +
-        '<a class="btn btn--primary" target="_blank" rel="noopener" href="' + mapsUrl + '">📍 Open in Maps</a>' +
-        '<a class="btn btn--ghost" href="#/map">🗺️ Op onze kaart</a>' +
+        '<a class="btn btn--primary" target="_blank" rel="noopener" href="' + mapsUrl + '">' + icon('pin') + ' Open in Maps</a>' +
+        '<a class="btn btn--ghost" href="#/map">' + icon('map') + ' Op onze kaart</a>' +
       '</div>' +
 
       (occ ? '<div class="block-label"><span class="bar"></span>Wie slaapt wanneer</div>' +
@@ -527,7 +586,7 @@
       galleryHtml() +
       '<div class="block-label"><span class="bar"></span>Onze crew</div>' +
       '<div class="card">' + whoChips(D.crew).replace('<span class="who__label">Wie gaan er:</span>', '<span class="who__label">Met z\'n allen:</span>') + '</div>' +
-      '<div class="callout">📲 Tip: voeg Oerall toe aan je beginscherm (deel-knop → "Zet op beginscherm") zodat hij als app opent.</div>' +
+      '<div class="callout">' + icon('bulb') + '<span>Tip: voeg Oerall toe aan je beginscherm (deel-knop → "Zet op beginscherm") zodat hij als app opent.</span></div>' +
       '<p class="muted" style="text-align:center;margin-top:22px;">Gemaakt met 🧡 voor onze Oerol ' + D.festival.year + '.<br>Bewerk <code>js/data.js</code> om de inhoud aan te passen.</p>'
     );
   }
@@ -586,7 +645,7 @@
       var btn = document.getElementById("route-next");
       if (btn) btn.addEventListener("click", function () {
         var ne = nextEvent(new Date());
-        if (ne) { window.OerallMap.routeTo(ne.venue); btn.textContent = "🚲 Route naar: " + ne.title; }
+        if (ne) { window.OerallMap.routeTo(ne.venue); btn.innerHTML = icon('bike') + " Route naar: " + esc(ne.title); }
       });
       // focus a specific venue if requested
       if (r.query.focus) {
