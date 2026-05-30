@@ -100,6 +100,15 @@ body {
 a { color: inherit; }
 button { font-family: inherit; }
 
+/* ---------- Icons (handgetekend, currentColor) ---------- */
+.ic {
+  width: 1.15em; height: 1.15em;
+  display: inline-block; vertical-align: -0.18em;
+  flex: none; stroke: currentColor;
+}
+.ic--spin { animation: spin 0.9s linear infinite; transform-origin: 50% 50%; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* ---------- Top bar ---------- */
 .topbar {
   position: sticky;
@@ -270,7 +279,9 @@ button { font-family: inherit; }
   border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 14px 16px; margin-top: 14px;
 }
-.weather__ico { font-size: 38px; line-height: 1; flex: none; }
+.weather__ico { font-size: 38px; line-height: 0; flex: none; }
+.weather__ico .ic { width: 38px; height: 38px; stroke-width: 1.7; }
+.weather__wind .ic { width: 15px; height: 15px; vertical-align: -0.22em; }
 .weather__main { flex: 1; min-width: 0; }
 .weather__temp { font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1; }
 .weather__label { font-family: var(--body); font-size: 13px; font-weight: 600; opacity: 0.85; margin-left: 8px; }
@@ -341,6 +352,17 @@ button { font-family: inherit; }
 .event-row__title { font-weight: 700; font-size: 16px; line-height: 1.2; }
 .event-row__venue { font-size: 13px; color: var(--ink-soft); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
 .event-row__tail { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 6px; }
+.event-row__venue .ic { width: 15px; height: 15px; color: var(--terra); flex: none; }
+.tix { display: inline-flex; color: var(--ink-soft); }
+.tix .ic { width: 21px; height: 21px; }
+.tix--has { color: var(--terra); }
+.chev { font-size: 18px; color: var(--ink-soft); opacity: 0.5; line-height: 1; }
+.meta-chip .ic { width: 15px; height: 15px; }
+.strip-tix { display: inline-flex; align-items: center; gap: 5px; }
+.strip-tix .ic { width: 14px; height: 14px; }
+.callout .ic { flex: none; width: 18px; height: 18px; margin-top: 1px; }
+.btn .ic { width: 1.2em; height: 1.2em; }
+.kv .v .ic { width: 16px; height: 16px; vertical-align: -0.22em; color: var(--terra); }
 
 .genre-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .genre-tag {
@@ -404,8 +426,10 @@ button { font-family: inherit; }
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .ql:active { transform: scale(0.97); }
-.ql__ico { font-size: 22px; }
+.ql__ico { font-size: 22px; display: flex; color: var(--terra); }
+.ql__ico .ic { width: 24px; height: 24px; }
 .ql--feature { grid-column: span 2; background: var(--wad); color: #fdf8ee; border-color: var(--wad); }
+.ql--feature .ql__ico { color: inherit; }
 
 /* ---------- Gallery — "Terschelling in beeld" ---------- */
 .gallery {
@@ -449,7 +473,7 @@ button { font-family: inherit; }
 .info-list { list-style: none; margin: 0; padding: 0; }
 .info-list li { padding: 11px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: flex-start; }
 .info-list li:last-child { border-bottom: none; }
-.info-list .ic { flex: none; }
+.info-list .ic { flex: none; width: 20px; height: 20px; color: var(--terra); margin-top: 1px; }
 .kv { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
 .kv:last-child { border-bottom: none; }
 .kv .k { color: var(--ink-soft); font-weight: 600; }
@@ -517,7 +541,8 @@ button { font-family: inherit; }
   gap: 3px; text-decoration: none; color: var(--ink-soft); font-size: 11px; font-weight: 600;
   position: relative;
 }
-.tab__icon { font-size: 21px; opacity: 0.55; transition: transform 0.15s ease, opacity 0.15s ease; }
+.tab__icon { font-size: 21px; opacity: 0.55; transition: transform 0.15s ease, opacity 0.15s ease; display: flex; align-items: center; justify-content: center; }
+.tab__svg { width: 24px; height: 24px; vertical-align: middle; }
 .tab.is-active { color: var(--ink); }
 .tab.is-active .tab__icon { opacity: 1; transform: translateY(-2px) scale(1.12); }
 .tab:active .tab__icon { transform: scale(0.92); }

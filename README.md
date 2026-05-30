@@ -14,6 +14,9 @@ Built as a **static PWA** (plain HTML/CSS/JS, no build step). Installable to you
 screen and works offline once loaded. Styled as an **editorial, art-first gallery** — a warm,
 nature-derived palette with the editorial serif *Fraunces*, built for art-loving visitors. All
 imagery is hand-crafted SVG (in [`img/`](img/)), so it stays crisp and works fully offline.
+The UI icons — tab bar, weather, tickets, loading/waiting, etc. — are a matching hand-drawn
+SVG set (`ICONS` in [`js/app.js`](js/app.js)) that inherits text colour, so it adapts to light
+and dark mode automatically.
 
 ## Run it locally
 
