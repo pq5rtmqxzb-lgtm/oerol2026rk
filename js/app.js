@@ -106,6 +106,7 @@
     "wind": "<path d=\"M3 9h11a2.4 2.4 0 1 0-2.4-2.6\"/><path d=\"M3 13.5h15a2.4 2.4 0 1 1-2.4 2.6\"/><path d=\"M3 18h8.5\"/>",
     "news": "<path d=\"M4 5.5h13v13a1.5 1.5 0 0 1-1.5 1.5H5a1 1 0 0 1-1-1Z\"/><path d=\"M17 9h3v9.5a1.5 1.5 0 0 1-1.5 1.5\"/><path d=\"M7 9h7M7 12.3h7M7 15.6h4.5\"/>",
     "check": "<path d=\"M5 12.5 10 17.5 19 6.5\"/>",
+    "copy": "<rect x=\"8.5\" y=\"8.5\" width=\"11\" height=\"11\" rx=\"2.4\"/><path d=\"M5.5 15.5H5A1.5 1.5 0 0 1 3.5 14V5A1.5 1.5 0 0 1 5 3.5h9A1.5 1.5 0 0 1 15.5 5v.5\"/>",
     "note": "<path d=\"M9.5 3.5 14.5 3.5 13.8 9 16.5 12 7.5 12 10.2 9Z\" fill=\"currentColor\" fill-opacity=\".16\"/><path d=\"M12 12v8\"/>",
     "bulb": "<path d=\"M9 17h6M10 20h4\"/><path d=\"M8 13.2A5 5 0 1 1 16 13.2c-.9 1-1.5 1.8-1.5 3.1h-5C9.5 15 8.9 14.2 8 13.2Z\"/>",
     "camera": "<rect x=\"3\" y=\"6.5\" width=\"18\" height=\"13\" rx=\"2.4\"/><path d=\"M8.5 6.5 10 4h4l1.5 2.5\"/><circle cx=\"12\" cy=\"13\" r=\"3.4\"/>",
@@ -201,8 +202,8 @@
     return 12;
   }
 
-  // expose helpers for map.js
-  window.Oerall = { fmtDay: fmtDay };
+  // expose helpers for map.js (single source of truth for genre colours + icons)
+  window.Oerall = { fmtDay: fmtDay, genre: genre, icon: icon };
 
   // ---- Reusable bits -------------------------------------------------------
   function eventRow(ev) {
@@ -396,8 +397,16 @@
       try { localStorage.setItem("oerall.weather", JSON.stringify(w)); } catch (e) {}
       paintWeather(w, false);
     }).catch(function () {
-      // offline: gecachte waarde blijft staan; anders de (spinner-)kaart weer verbergen
-      if (!hadCache) { var b = document.getElementById("weather"); if (b) b.hidden = true; }
+      // offline: gecachte waarde blijft staan; zonder cache tonen we een rustige
+      // 'offline'-staat i.p.v. de kaart te laten verdwijnen.
+      if (hadCache) return;
+      var b = document.getElementById("weather");
+      if (!b) return;
+      b.querySelector('[data-w="ico"]').innerHTML = icon("w-default");
+      b.querySelector('[data-w="temp"]').textContent = "–";
+      b.querySelector('[data-w="label"]').textContent = "weer offline";
+      b.querySelector('[data-w="wind"]').textContent = "geen verbinding";
+      b.hidden = false;
     });
   }
 
@@ -499,6 +508,7 @@
       '</div>' +
       '<p class="detail-desc">' + esc(ev.description || "") + '</p>' +
       routeButtons(ev) +
+      '<div class="btn-row"><button class="btn btn--ghost btn--block" data-ics="' + esc(ev.id) + '">' + icon('calendar') + ' Zet in agenda</button></div>' +
       whoChips(ev.attendees)
     );
   }
@@ -506,7 +516,10 @@
   function pageMap(params) {
     var html =
       banner("map", 'De <em>kaart</em>') +
-      '<div class="map-wrap"><iframe id="gmap" title="Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>' +
+      '<div class="map-wrap">' +
+        '<iframe id="gmap" title="Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>' +
+        '<div class="map-status" id="map-status" role="status" aria-live="polite" hidden></div>' +
+      '</div>' +
       '<div class="map-route-bar"><button class="btn btn--dark btn--block" id="route-next">' + icon('bike') + ' Route naar volgende voorstelling</button></div>' +
       '<div class="map-actions" id="map-actions"></div>' +
       '<div class="block-label"><span class="bar"></span>Kies een locatie</div>' +
@@ -556,7 +569,13 @@
         '<div class="card"><div class="occ">' + occ + '</div></div>' : '') +
 
       '<div class="block-label"><span class="bar"></span>Wifi</div>' +
-      '<div class="wifi-box"><div class="net">Netwerk: ' + esc(h.wifi.network) + '</div><div class="pw">' + esc(h.wifi.password) + '</div></div>' +
+      '<button type="button" class="wifi-box" data-copy="' + esc(h.wifi.password) + '" aria-label="Wifi-wachtwoord kopiëren">' +
+        '<div class="wifi-box__info">' +
+          '<div class="net">Netwerk: ' + esc(h.wifi.network) + '</div>' +
+          '<div class="pw">' + esc(h.wifi.password) + '</div>' +
+        '</div>' +
+        '<span class="wifi-box__copy" data-copy-label>' + icon('copy') + ' Kopieer</span>' +
+      '</button>' +
 
       '<div class="block-label"><span class="bar"></span>Goed om te weten</div>' +
       '<div class="card"><ul class="info-list">' + notes + '</ul></div>' +
@@ -673,8 +692,75 @@
     }
   }
 
+  // Kopieer tekst (bv. wifi-wachtwoord) met dezelfde fallback als delen.
+  function copyText(text, btn) {
+    var label = btn && btn.querySelector("[data-copy-label]");
+    var flash = function () {
+      if (!label) return;
+      var prev = label.innerHTML;
+      label.innerHTML = icon("check") + " Gekopieerd";
+      setTimeout(function () { label.innerHTML = prev; }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(flash).catch(function () { alert(text); });
+    } else {
+      alert(text);
+    }
+  }
+
+  // ---- .ics-export: zet een voorstelling in je agenda (volledig offline) ----
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  // Lokale "floating" tijd (geen Z) — de groep zit in NL, dus de wandkloktijd klopt.
+  function icsLocal(d) {
+    return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + "T" +
+      pad2(d.getHours()) + pad2(d.getMinutes()) + "00";
+  }
+  function icsUtc(d) {
+    return d.getUTCFullYear() + pad2(d.getUTCMonth() + 1) + pad2(d.getUTCDate()) + "T" +
+      pad2(d.getUTCHours()) + pad2(d.getUTCMinutes()) + pad2(d.getUTCSeconds()) + "Z";
+  }
+  function icsEscape(s) {
+    return String(s == null ? "" : s)
+      .replace(/\\/g, "\\\\").replace(/[,;]/g, "\\$&").replace(/\r?\n/g, "\\n");
+  }
+  function addToCalendar(id) {
+    var ev = byId(id);
+    if (!ev) return;
+    var startDt = parseDateTime(ev.day, ev.start);
+    var endDt = ev.end ? parseDateTime(ev.day, ev.end) : new Date(startDt.getTime() + 36e5);
+    var ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Oerall//Oerol " + D.festival.year + "//NL",
+      "CALSCALE:GREGORIAN",
+      "BEGIN:VEVENT",
+      "UID:" + ev.id + "@oerall",
+      "DTSTAMP:" + icsUtc(new Date()),
+      "DTSTART:" + icsLocal(startDt),
+      "DTEND:" + icsLocal(endDt),
+      "SUMMARY:" + icsEscape(ev.title + (ev.artist ? " — " + ev.artist : "")),
+      "LOCATION:" + icsEscape(ev.venue.name + (ev.venue.area ? " (" + ev.venue.area + ")" : "")),
+      "DESCRIPTION:" + icsEscape(ev.description || ""),
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+    var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = ev.id + ".ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
   // Event delegation for clicks on event rows / back button
   app.addEventListener("click", function (e) {
+    var copy = e.target.closest("[data-copy]");
+    if (copy) { copyText(copy.getAttribute("data-copy"), copy); return; }
+    var ics = e.target.closest("[data-ics]");
+    if (ics) { addToCalendar(ics.getAttribute("data-ics")); return; }
     var share = e.target.closest("[data-share]");
     if (share) { shareEvent(share.getAttribute("data-share")); return; }
     var row = e.target.closest("[data-event]");
@@ -689,9 +775,12 @@
     }
   });
 
-  // Set top-bar krant link
+  // Set top-bar krant link; verberg de knop als er geen krant-link is.
   var krantLink = document.getElementById("topbar-krant");
-  if (krantLink && D.links.krant) krantLink.href = D.links.krant.url;
+  if (krantLink) {
+    if (D.links.krant) krantLink.href = D.links.krant.url;
+    else krantLink.hidden = true;
+  }
   var sub = document.getElementById("topbar-sub");
   if (sub) sub.textContent = D.festival.island + " in beeld · Oerol " + D.festival.year;
 

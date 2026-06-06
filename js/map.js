@@ -8,16 +8,6 @@
    ============================================================ */
 
 window.OerallMap = (function () {
-  var GENRE_COLORS = {
-    theater: "#ff5a2c",
-    muziek: "#2e7d9a",
-    straat: "#f0a500",
-    woord: "#7a5cff",
-    kunst: "#d6336c",
-    eten: "#2f9e44",
-    dans: "#9c36b5",
-  };
-
   // A location's most accurate text handle: the full address/name query,
   // falling back to coordinates only if no query is known.
   function locQuery(loc) {
@@ -61,13 +51,56 @@ window.OerallMap = (function () {
 
   // ---- In-app embed --------------------------------------------------------
 
+  var currentUrl = "";   // last URL handed to the iframe (reset per navigation)
+  var wired = false;     // one-time connectivity wiring
+
   function frame() {
     return document.getElementById("gmap");
+  }
+  function statusBox() {
+    return document.getElementById("map-status");
+  }
+
+  // The map needs internet; show a loading spinner while it loads and a clear
+  // message when we're offline instead of the browser's raw error frame.
+  function showStatus(html) {
+    var box = statusBox();
+    if (!box) return;
+    box.innerHTML = html;
+    box.hidden = false;
+  }
+  function hideStatus() {
+    var box = statusBox();
+    if (box) box.hidden = true;
+  }
+  function showLoading() {
+    showStatus(window.Oerall.icon("spinner", "ic--spin") + "<span>Kaart laden…</span>");
+  }
+  function showOffline() {
+    showStatus(window.Oerall.icon("bulb") +
+      "<span>De kaart heeft internet nodig — even geen verbinding.</span>");
   }
 
   function setFrame(url) {
     var el = frame();
-    if (el && el.getAttribute("src") !== url) el.setAttribute("src", url);
+    if (!el || currentUrl === url) return;
+    currentUrl = url;
+    if (navigator.onLine === false) { showOffline(); return; }
+    showLoading();
+    el.setAttribute("src", url);
+  }
+
+  // Keep the embed in sync with connectivity changes (registered once).
+  function wireOnce() {
+    if (wired) return;
+    wired = true;
+    window.addEventListener("offline", function () {
+      if (statusBox()) showOffline();
+    });
+    window.addEventListener("online", function () {
+      var el = frame();
+      if (el && currentUrl) { showLoading(); el.setAttribute("src", currentUrl); }
+    });
   }
 
   // Render the buttons for a selected place (open in Maps + route from home).
@@ -77,10 +110,10 @@ window.OerallMap = (function () {
     var home = window.OERALL_DATA.home;
     var html =
       '<a class="btn btn--primary" target="_blank" rel="noopener" href="' +
-        searchUrl(loc) + '">📍 Open in Google Maps</a>';
+        searchUrl(loc) + '">' + window.Oerall.icon('pin') + ' Open in Google Maps</a>';
     if (!isHome && home) {
       html += '<a class="btn btn--ghost" target="_blank" rel="noopener" href="' +
-        directionsUrl(home, loc) + '">🚲 Route ernaartoe</a>';
+        directionsUrl(home, loc) + '">' + window.Oerall.icon('bike') + ' Route ernaartoe</a>';
     }
     box.innerHTML = html;
   }
@@ -117,8 +150,8 @@ window.OerallMap = (function () {
 
     chips.push(
       '<button class="venue-chip" data-name="' + escAttr(data.home.name) + '" data-home="1">' +
-        '<i class="chip-dot" style="background:#0e3a38;border:2px solid #fff;"></i>🏠 ' +
-        escHtml(data.home.name) + '</button>'
+        '<i class="chip-dot" style="background:#0e3a38;border:2px solid #fff;"></i>' +
+        window.Oerall.icon('home') + ' ' + escHtml(data.home.name) + '</button>'
     );
 
     var seen = {};
@@ -126,7 +159,7 @@ window.OerallMap = (function () {
       var v = ev.venue;
       if (!v || seen[v.name]) return;
       seen[v.name] = true;
-      var color = GENRE_COLORS[ev.genre] || "#ff5a2c";
+      var color = window.Oerall.genre(ev.genre).color;
       chips.push(
         '<button class="venue-chip" data-name="' + escAttr(v.name) + '">' +
           '<i class="chip-dot" style="background:' + color + ';"></i>' +
@@ -153,13 +186,13 @@ window.OerallMap = (function () {
   function escAttr(s) { return escHtml(s).replace(/"/g, "&quot;"); }
 
   function init() {
-    buildChips();
-    // Default view: an overview of the whole island. The page (and thus the
-    // iframe) is rebuilt on every navigation, so set this whenever it's empty.
+    wireOnce();
+    currentUrl = "";          // the iframe is rebuilt on every navigation
     var el = frame();
-    if (el && !el.getAttribute("src")) {
-      setFrame(embedSearchUrl(window.OERALL_DATA.festival.island + ", Nederland"));
-    }
+    if (el) el.addEventListener("load", hideStatus);
+    buildChips();
+    // Default view: an overview of the whole island.
+    setFrame(embedSearchUrl(window.OERALL_DATA.festival.island + ", Nederland"));
   }
 
   return {
