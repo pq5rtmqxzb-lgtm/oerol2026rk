@@ -356,6 +356,7 @@ button { font-family: inherit; }
 .kv .v .ic { width: 16px; height: 16px; vertical-align: -0.22em; color: var(--terra); }
 
 .genre-tag {
+  display: inline-block;
   font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
   padding: 3px 9px; border-radius: 999px; color: #fff; align-self: flex-start;
 }
