@@ -217,7 +217,7 @@
         '<div class="event-row__main">' +
           '<div class="event-row__title">' + esc(ev.title) + '</div>' +
           '<div class="event-row__venue">' + icon('pin') + '<span>' + esc(ev.venue.name) + (ev.venue.area ? ' · ' + esc(ev.venue.area) : '') + '</span></div>' +
-          '<span class="genre-tag" style="background:' + g.color + ';margin-top:8px;">' + g.label + '</span>' +
+          '<span class="genre-tag" style="background:' + g.color + ';margin-top:12px;">' + g.label + '</span>' +
         '</div>' +
         '<div class="event-row__tail">' +
           (ev.ticket ? '<span class="tix tix--has" title="Kaartje in bezit">' + icon('ticket') + '</span>' : '<span class="tix" title="Vrij toegankelijk">' + icon('free') + '</span>') +
