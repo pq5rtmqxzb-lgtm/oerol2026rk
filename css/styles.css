@@ -334,14 +334,14 @@ button { font-family: inherit; }
 }
 .event-row:active { transform: scale(0.98); }
 .event-row__time {
-  flex: 0 0 52px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex: 0 0 52px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
   border-right: 1px solid var(--line); padding-right: 11px;
 }
-.event-row__time .hh { font-family: var(--display); font-weight: 600; font-size: 20px; }
-.event-row__time .day { font-size: 10px; color: var(--ink-soft); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+.event-row__time .hh { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.2; }
+.event-row__time .day { font-size: 10px; color: var(--ink-soft); letter-spacing: 0.8px; text-transform: uppercase; margin-top: 3px; }
 .event-row__main { flex: 1; min-width: 0; }
 .event-row__title { font-weight: 700; font-size: 16px; line-height: 1.2; }
-.event-row__venue { font-size: 13px; color: var(--ink-soft); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+.event-row__venue { font-size: 13px; color: var(--ink-soft); margin-top: 5px; display: flex; align-items: center; gap: 5px; }
 .event-row__tail { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 6px; }
 .event-row__venue .ic { width: 15px; height: 15px; color: var(--terra); flex: none; }
 .tix { display: inline-flex; color: var(--ink-soft); }
