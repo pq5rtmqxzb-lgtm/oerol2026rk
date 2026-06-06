@@ -86,10 +86,10 @@ window.OERALL_DATA = {
   links: {
     // icon = naam uit de icoonset in js/app.js (ICONS); valt terug op ruwe tekst/emoji.
     oerol: { label: "Officiële Oerol-website", url: "https://oerol.nl/en/", icon: "events" },
-    krant: { label: "Oerol Krant (dagkrant)", url: "https://oerol.nl/nl/oerol-krant/", icon: "news" },
+    krant: { label: "Oerol Krant (dagkrant)", url: "https://dagkrant.oerol.nl/", icon: "news" },
     program: { label: "Volledig programma", url: "https://oerol.nl/en/programmeoverview/", icon: "calendar" },
     tickets: { label: "Tickets & verkoop", url: "https://oerol.nl/en/plan-your-visit/tickets-and-sales/", icon: "ticket" },
-    map: { label: "Oerol plattegrond", url: "https://oerol.nl/en/plan-your-visit/", icon: "map" },
+    map: { label: "Oerol plattegrond", url: "https://kaart.oerol.nl/", icon: "map" },
     ferry: { label: "Veerboot (Rederij Doeksen)", url: "https://www.rederij-doeksen.nl/en", icon: "ferry" },
     weather: { label: "Weer op Terschelling", url: "https://www.knmi.nl/nederland-nu/weer/waarschuwingen", icon: "w-partly" },
     instagram: { label: "Oerol op Instagram", url: "https://www.instagram.com/oerolterschelling/", icon: "camera" },
