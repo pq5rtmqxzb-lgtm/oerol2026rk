@@ -25,15 +25,6 @@
   --line: rgba(33, 30, 26, 0.14);
   --hair: rgba(33, 30, 26, 0.09);
 
-  /* genre colours (afgestemd op het palet) */
-  --g-theater: #cf6b43;
-  --g-muziek: #3c6a78;
-  --g-straat: #b07a2b;
-  --g-woord: #5d6c8a;
-  --g-kunst: #9c5a78;
-  --g-eten: #6f8048;
-  --g-dans: #7a4a62;
-
   /* layered shadows — soft, gallery-like */
   --shadow: 0 1px 2px rgba(33, 30, 26, 0.05), 0 6px 18px rgba(33, 30, 26, 0.09);
   --shadow-lg: 0 2px 6px rgba(33, 30, 26, 0.07), 0 16px 40px rgba(33, 30, 26, 0.15);
@@ -364,7 +355,6 @@ button { font-family: inherit; }
 .btn .ic { width: 1.2em; height: 1.2em; }
 .kv .v .ic { width: 16px; height: 16px; vertical-align: -0.22em; color: var(--terra); }
 
-.genre-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .genre-tag {
   font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
   padding: 3px 9px; border-radius: 999px; color: #fff; align-self: flex-start;
@@ -480,9 +470,23 @@ button { font-family: inherit; }
 .kv .v { font-weight: 700; text-align: right; }
 .kv .v a { color: var(--terra-dk); }
 
-.wifi-box { background: var(--ink); color: var(--paper); border-radius: 16px; padding: 16px; }
+.wifi-box {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; text-align: left; font-family: inherit;
+  background: var(--ink); color: var(--paper);
+  border: none; border-radius: 16px; padding: 16px; cursor: pointer;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+.wifi-box:active { transform: scale(0.99); }
+.wifi-box__info { min-width: 0; }
 .wifi-box .net { font-size: 13px; opacity: 0.8; }
-.wifi-box .pw { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: 0.5px; color: var(--sand); margin-top: 4px; }
+.wifi-box .pw { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: 0.5px; color: var(--sand); margin-top: 4px; word-break: break-word; }
+.wifi-box__copy {
+  flex: none; display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; opacity: 0.9;
+  background: rgba(255, 255, 255, 0.12); padding: 8px 12px; border-radius: 999px;
+}
+.wifi-box__copy .ic { width: 15px; height: 15px; }
 
 /* Map */
 .map-wrap { position: relative; }
@@ -497,6 +501,19 @@ button { font-family: inherit; }
   overflow: hidden;
   z-index: 1;
 }
+.map-status {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 24px; text-align: center;
+  border-radius: var(--radius);
+  background: var(--glass-paper);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  color: var(--ink-soft); font-size: 14px; font-weight: 600;
+  z-index: 2;
+}
+.map-status[hidden] { display: none; }
+.map-status .ic { width: 30px; height: 30px; color: var(--terra); }
+.map-status span { max-width: 24ch; line-height: 1.4; }
 .map-route-bar { margin-top: 12px; }
 .map-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
 .map-actions:empty { display: none; }
@@ -567,6 +584,7 @@ button { font-family: inherit; }
 .venue-chip:focus-visible,
 .topbar__ext:focus-visible,
 .plate:focus-visible,
+.wifi-box:focus-visible,
 a:focus-visible {
   outline: 3px solid var(--terra);
   outline-offset: 2px;
@@ -583,6 +601,7 @@ a:focus-visible {
     box-shadow: var(--shadow-lg);
   }
   .btn:hover { filter: brightness(1.05); }
+  .wifi-box:hover { filter: brightness(1.12); }
   .day-pill:hover { border-color: var(--terra); }
   .topbar__ext:hover { background: rgba(255, 255, 255, 0.2); }
   .tab:hover .tab__icon { opacity: 0.85; }
