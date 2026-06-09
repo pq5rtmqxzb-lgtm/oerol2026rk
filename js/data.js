@@ -34,6 +34,10 @@ window.OERALL_DATA = {
     // Eiland is klein, één punt volstaat. Valt anders terug op het huis.
     lat: 53.39,
     lng: 5.31,
+    // Zee-coördinaat voor de getijden (open-meteo marine API). Moet in open
+    // water liggen (ten zuidwesten van West-Terschelling), niet op land.
+    marineLat: 53.33,
+    marineLng: 5.2,
   },
 
   // ---- De hele groep -------------------------------------------------------
@@ -95,6 +99,36 @@ window.OERALL_DATA = {
     instagram: { label: "Oerol op Instagram", url: "https://www.instagram.com/oerolterschelling/", icon: "camera" },
   },
 
+  // ---- Veerboot (Rederij Doeksen, Harlingen <-> West-Terschelling) ---------
+  // NOG INVULLEN: neem de juni-dienstregeling over van rederij-doeksen.nl.
+  // Zolang de lijsten leeg zijn verbergt de app het boten-kaartje vanzelf.
+  // type: "boot" = gewone veerboot (± 1u55), "snel" = sneldienst (± 45 min).
+  // Voorbeeldregel: { time: "07:30", type: "boot" }
+  ferry: {
+    operator: "Rederij Doeksen",
+    crossingMin: { boot: 115, snel: 45 },
+    schedule: {
+      "harlingen-terschelling": {
+        "ma-vr": [],
+        "za": [],
+        "zo": [],
+      },
+      "terschelling-harlingen": {
+        "ma-vr": [],
+        "za": [],
+        "zo": [],
+      },
+    },
+    note: "Tijden onder voorbehoud — check rederij-doeksen.nl en reserveer op tijd.",
+  },
+
+  // ---- Getijden: vaste terugvaltabel (West-Terschelling) -------------------
+  // Wordt alleen gebruikt als de getijden-API (open-meteo marine) niet lukt.
+  // NOG INVULLEN vanaf getij.nl (station West-Terschelling) — 10 regels data
+  // en de getijden werken 100% offline. Voorbeeldregel:
+  //   { day: "2026-06-12", high: ["03:40", "16:05"], low: ["11:20", "23:50"] },
+  tides: [],
+
   // ---- Terschelling in beeld (galerij op 'Vandaag' en 'Meer') --------------
   // Handgemaakte natuurkunst van het eiland. img verwijst naar de SVG's in /img.
   // title + caption verschijnen als museumlabel onder elke plaat.
@@ -137,6 +171,9 @@ window.OERALL_DATA = {
   // "kunst" | "eten" | "dans".
   // attendees = wie er volgens rij 3 ("Wie") daadwerkelijk bij is.
   // venue.query = het Oerol-adres uit de sheet → wordt gebruikt voor de route.
+  // end (optioneel, "HH:MM") = eindtijd; zonder end rekent de app met 1 uur.
+  // Vul echte eindtijden in zodra bekend — dan kloppen "nog X min", de vrije
+  // gaten in de dagtijdlijn en de agenda-export precies.
   events: [
     {
       id: "ma15-notyet",
