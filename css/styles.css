@@ -542,6 +542,108 @@ button { font-family: inherit; }
 .muted { color: var(--ink-soft); font-size: 13px; }
 .spacer { height: 8px; }
 
+/* ---------- Zoeken (Programma) ---------- */
+.search-box {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+  padding: 11px 16px; margin-bottom: 12px; box-shadow: var(--shadow);
+  color: var(--ink-soft);
+}
+.search-box .ic { width: 18px; height: 18px; flex: none; }
+.search-box input {
+  border: none; background: none; font: inherit; font-weight: 600;
+  color: var(--ink); width: 100%; outline: none; padding: 0;
+}
+.search-box input::placeholder { color: var(--ink-soft); opacity: 0.8; }
+.search-box:focus-within { outline: 3px solid var(--terra); outline-offset: 2px; }
+
+/* ---------- Dagtijdlijn (Programma, één dag actief) ---------- */
+.tl-gap {
+  margin: -2px 0 -2px 26px;
+  padding: 10px 0 10px 18px;
+  border-left: 2px dashed var(--line);
+  color: var(--ink-soft); font-size: 13px; font-weight: 600;
+}
+.tl-gap .ic { width: 16px; height: 16px; vertical-align: -0.22em; }
+.tl-gap__sep { opacity: 0.5; }
+.tl-gap--warn { color: var(--terra-dk); border-left-color: var(--terra); }
+
+/* Conflictlabel op event-rijen */
+.conflict-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+  color: #fff; background: var(--terra-dk);
+  border-radius: 999px; padding: 3px 9px; margin: 12px 0 0 6px;
+}
+.conflict-badge .ic { width: 13px; height: 13px; }
+
+/* ---------- "Nu & straks" secties in de next-card ---------- */
+.nc-sec + .nc-sec { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
+.nc-sec__label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase;
+  color: var(--ink-soft); margin-bottom: 10px;
+}
+
+/* ---------- Urenstrip (Vandaag) ---------- */
+.hours {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding: 4px 2px; margin: 12px -2px 0;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.hours::-webkit-scrollbar { display: none; }
+.hour-cell {
+  flex: 0 0 auto; min-width: 60px; text-align: center;
+  background: var(--card); border: 1px solid var(--hair); border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 9px 7px; font-size: 12px; font-weight: 600;
+}
+.hour-cell .ic { width: 21px; height: 21px; margin: 5px 0 3px; color: var(--wad); }
+.hour-cell .t { color: var(--ink-soft); font-size: 11px; white-space: nowrap; }
+.hour-cell .tmp { font-weight: 800; font-size: 14px; }
+.hour-cell .pop { color: var(--wad); font-size: 11px; margin-top: 3px; white-space: nowrap; }
+.hour-cell .pop .ic { width: 11px; height: 11px; margin: 0; vertical-align: -0.12em; }
+.hour-cell .pop.is-dry { opacity: 0.45; }
+@media (prefers-color-scheme: dark) {
+  .hour-cell .ic, .hour-cell .pop { color: var(--mist); }
+}
+
+/* ---------- Weerkaart: zon-regel + ververs-knop ---------- */
+.weather__sun { font-size: 12px; font-weight: 600; opacity: 0.85; margin-top: 5px; }
+.weather__sun .ic { width: 14px; height: 14px; vertical-align: -0.2em; }
+.weather__golden { white-space: nowrap; }
+.weather__side {
+  display: flex; flex-direction: column; align-items: flex-end;
+  justify-content: space-between; align-self: stretch; gap: 8px;
+}
+.weather__refresh {
+  border: none; background: rgba(255, 255, 255, 0.12); color: #fdf8ee;
+  width: 32px; height: 32px; border-radius: 999px; cursor: pointer;
+  display: grid; place-items: center; padding: 0;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.weather__refresh:active { transform: scale(0.92); }
+.weather__refresh .ic { width: 16px; height: 16px; }
+
+/* ---------- "Het eiland vandaag": getijden + boten ---------- */
+#island-block .card + .card { margin-top: 12px; }
+.island-card__head {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--display); font-weight: 600; font-size: 18px;
+  margin-bottom: 4px;
+}
+.island-card__head .ic { width: 20px; height: 20px; color: var(--wad); flex: none; }
+.island-card__sub { font-family: var(--body); font-size: 11px; font-weight: 600; color: var(--ink-soft); letter-spacing: 0.8px; text-transform: uppercase; }
+.island-card__note { font-size: 12px; color: var(--ink-soft); margin: 10px 0 0; line-height: 1.5; }
+.island-card__note a { color: var(--terra-dk); font-weight: 700; }
+.ferry-type {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+  background: var(--paper-2); border-radius: 999px; padding: 2px 7px;
+}
+@media (prefers-color-scheme: dark) {
+  .island-card__head .ic { color: var(--mist); }
+}
+
 /* ---------- Bottom tab bar ---------- */
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
@@ -576,6 +678,7 @@ button { font-family: inherit; }
 }
 
 /* ---------- Keyboard focus ---------- */
+.weather__refresh:focus-visible,
 .tab:focus-visible,
 .btn:focus-visible,
 .event-row:focus-visible,

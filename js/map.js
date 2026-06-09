@@ -53,6 +53,8 @@ window.OerallMap = (function () {
 
   var currentUrl = "";   // last URL handed to the iframe (reset per navigation)
   var wired = false;     // one-time connectivity wiring
+  var loadTimer = null;  // iframes geven cross-origin geen error-event; een
+                         // timeout is de betrouwbare manier om falen te zien
 
   function frame() {
     return document.getElementById("gmap");
@@ -70,15 +72,37 @@ window.OerallMap = (function () {
     box.hidden = false;
   }
   function hideStatus() {
+    clearTimeout(loadTimer);
     var box = statusBox();
     if (box) box.hidden = true;
+  }
+  function retryButton() {
+    return '<button class="btn btn--ghost" type="button" data-map-retry="1">' +
+      window.Oerall.icon("refresh") + ' Opnieuw proberen</button>';
   }
   function showLoading() {
     showStatus(window.Oerall.icon("spinner", "ic--spin") + "<span>Kaart laden…</span>");
   }
   function showOffline() {
     showStatus(window.Oerall.icon("bulb") +
-      "<span>De kaart heeft internet nodig — even geen verbinding.</span>");
+      "<span>De kaart heeft internet nodig — even geen verbinding.</span>" + retryButton());
+  }
+  function showFailed() {
+    showStatus(window.Oerall.icon("bulb") +
+      "<span>Kaart laden lukt niet. Controleer je verbinding.</span>" + retryButton());
+  }
+  function armLoadTimeout() {
+    clearTimeout(loadTimer);
+    loadTimer = setTimeout(showFailed, 12000);
+  }
+  // Herlaad de huidige kaart-URL (retry-knop / terug online).
+  function reload() {
+    var el = frame();
+    if (!el || !currentUrl) return;
+    if (navigator.onLine === false) { showOffline(); return; }
+    showLoading();
+    armLoadTimeout();
+    el.setAttribute("src", currentUrl);
   }
 
   function setFrame(url) {
@@ -87,6 +111,7 @@ window.OerallMap = (function () {
     currentUrl = url;
     if (navigator.onLine === false) { showOffline(); return; }
     showLoading();
+    armLoadTimeout();
     el.setAttribute("src", url);
   }
 
@@ -97,9 +122,11 @@ window.OerallMap = (function () {
     window.addEventListener("offline", function () {
       if (statusBox()) showOffline();
     });
-    window.addEventListener("online", function () {
-      var el = frame();
-      if (el && currentUrl) { showLoading(); el.setAttribute("src", currentUrl); }
+    window.addEventListener("online", reload);
+    // de statusbox wordt per navigatie opnieuw opgebouwd; delegeer de
+    // retry-knop daarom op document-niveau
+    document.addEventListener("click", function (e) {
+      if (e.target.closest && e.target.closest("[data-map-retry]")) reload();
     });
   }
 

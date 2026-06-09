@@ -17,6 +17,35 @@
     var t = (time || "00:00").split(":").map(Number);
     return new Date(p[0], p[1] - 1, p[2], t[0], t[1], 0, 0);
   }
+  // ISO van open-meteo ("2026-06-18T14:00") -> local Date, zonder op de
+  // browser-parser van new Date(string) te vertrouwen.
+  function parseIsoLocal(s) {
+    var parts = String(s).split("T");
+    return parseDateTime(parts[0], parts[1] || "00:00");
+  }
+  // Centrale klok. Voor het testen van festival-modus kun je de tijd verzetten
+  // met localStorage.setItem("oerall.debugNow", "2026-06-18T14:30") + reload.
+  // Offset i.p.v. bevroren tijd, zodat countdowns gewoon doortikken.
+  var timeOffsetMs = 0;
+  try {
+    var dbgNow = localStorage.getItem("oerall.debugNow");
+    if (dbgNow) timeOffsetMs = parseIsoLocal(dbgNow).getTime() - Date.now();
+  } catch (e) {}
+  function appNow() { return new Date(Date.now() + timeOffsetMs); }
+  function todayIso(now) {
+    now = now || appNow();
+    return now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+  }
+  function fmtClock(d) {
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  // Duur in minuten -> "45 min" / "1 u 40" / "2 u".
+  function fmtDur(mins) {
+    mins = Math.round(mins);
+    if (mins < 60) return mins + " min";
+    var h = Math.floor(mins / 60), m = mins % 60;
+    return h + " u" + (m ? " " + String(m).padStart(2, "0") : "");
+  }
   function fmtDay(day) {
     var p = day.split("-").map(Number);
     var d = new Date(p[0], p[1] - 1, p[2]);
@@ -37,13 +66,18 @@
   // Relatieve tijd t.o.v. nu: "nu bezig", "over 2 uur", "over 35 min".
   // Lege string als het te ver weg (> 1 dag) of al voorbij is.
   function relTime(date, now) {
-    var diff = date - (now || new Date());
+    var diff = date - (now || appNow());
     if (diff <= 0) return "nu bezig";
     var mins = Math.round(diff / 6e4);
     if (mins < 60) return "over " + mins + " min";
     var hrs = Math.round(mins / 60);
     if (hrs < 24) return "over " + hrs + " uur";
     return "";
+  }
+  // Resterende tijd van een lopende voorstelling: "nog 35 min" / "nog 1 uur".
+  function relTimeLeft(endDate, now) {
+    var mins = Math.max(1, Math.round((endDate - now) / 6e4));
+    return mins < 60 ? "nog " + mins + " min" : "nog " + Math.round(mins / 60) + " uur";
   }
 
   // ---- Event helpers -------------------------------------------------------
@@ -52,17 +86,69 @@
       return parseDateTime(a.day, a.start) - parseDateTime(b.day, b.start);
     });
   }
+  // Eindtijd van een voorstelling; zonder `end` rekenen we 1 uur speelduur.
+  // Eén plek voor deze aanname (ticker, tijdlijn, conflicten, .ics-export).
+  function eventEnd(ev) {
+    var s = parseDateTime(ev.day, ev.start);
+    return ev.end ? parseDateTime(ev.day, ev.end) : new Date(s.getTime() + 36e5);
+  }
   function nextEvent(now) {
-    now = now || new Date();
+    now = now || appNow();
     var list = sortedEvents();
     for (var i = 0; i < list.length; i++) {
-      var end = parseDateTime(list[i].day, list[i].end || list[i].start);
-      if (end >= now) return list[i];
+      if (eventEnd(list[i]) >= now) return list[i];
     }
     return null;
   }
+  // Voorstellingen die nu bezig zijn (start <= nu < eind).
+  function currentEvents(now) {
+    return sortedEvents().filter(function (e) {
+      return parseDateTime(e.day, e.start) <= now && now < eventEnd(e);
+    });
+  }
+  // Eerstvolgende voorstelling die nog moet beginnen (strikt na nu;
+  // nextEvent telt lopende voorstellingen mee).
+  function upcomingEvent(now) {
+    var list = sortedEvents();
+    for (var i = 0; i < list.length; i++) {
+      if (parseDateTime(list[i].day, list[i].start) > now) return list[i];
+    }
+    return null;
+  }
+  // Ids van voorstellingen die op dezelfde dag in tijd overlappen.
+  function conflictIds() {
+    var out = {};
+    var list = sortedEvents();
+    for (var i = 0; i < list.length; i++) {
+      for (var j = i + 1; j < list.length; j++) {
+        if (list[j].day !== list[i].day) break;
+        if (parseDateTime(list[j].day, list[j].start) < eventEnd(list[i])) {
+          out[list[i].id] = true;
+          out[list[j].id] = true;
+        }
+      }
+    }
+    return out;
+  }
   function byId(id) {
     return D.events.filter(function (e) { return e.id === id; })[0];
+  }
+
+  // ---- Afstand & fietstijd -------------------------------------------------
+  function haversineKm(a, b) {
+    var R = 6371, rad = Math.PI / 180;
+    var dLat = (b.lat - a.lat) * rad;
+    var dLng = (b.lng - a.lng) * rad;
+    var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(s));
+  }
+  // Geschatte fietstijd tussen twee plekken: hemelsbreed × 1.3 (wegen-factor)
+  // bij 15 km/u, afgerond op 5 minuten. null als coördinaten ontbreken.
+  function cycleMinutes(a, b) {
+    if (!a || !b || a.lat == null || b.lat == null) return null;
+    var km = haversineKm(a, b) * 1.3;
+    return Math.max(5, Math.round((km / 15) * 60 / 5) * 5);
   }
   function festivalDays() {
     var s = parseDateTime(D.festival.start, "00:00");
@@ -122,6 +208,13 @@
     "w-snow": "<path d=\"M7.5 13h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 13Z\"/><path d=\"M9 17.5v2M12 16.5v3M15 17.5v2\" /><circle cx=\"9\" cy=\"18.5\" r=\".4\" fill=\"currentColor\"/>",
     "w-thunder": "<path d=\"M7.5 12.5h9.2a3.7 3.7 0 0 0 .2-7.4 5 5 0 0 0-9.5-1.1A3.8 3.8 0 0 0 7.5 12.5Z\"/><path d=\"m12.5 14-2.5 3.6h2.4L10.6 21\" /><path d=\"m12.5 14-2.5 3.6h2.4L10.6 21\" fill=\"currentColor\" fill-opacity=\".15\"/>",
     "w-default": "<path d=\"M12 13.5V6.5a2 2 0 0 1 4 0v7a3.6 3.6 0 1 1-4 0Z\"/><circle cx=\"14\" cy=\"16.6\" r=\"1.4\" fill=\"currentColor\" stroke=\"none\"/>",
+    "search": "<circle cx=\"10.5\" cy=\"10.5\" r=\"5.6\"/><path d=\"m14.8 14.8 5.7 5.7\"/>",
+    "refresh": "<path d=\"M19.3 12a7.3 7.3 0 1 1-2.1-5.1\"/><path d=\"M19.6 3.6v3.5h-3.5\"/>",
+    "warn": "<path d=\"M12 4.2 21 19.6H3Z\"/><path d=\"M12 9.8v4.3\"/><circle cx=\"12\" cy=\"16.7\" r=\".5\" fill=\"currentColor\" stroke=\"none\"/>",
+    "sunrise": "<path d=\"M3.5 17.5h17\"/><path d=\"M7.8 17.5a4.2 4.2 0 0 1 8.4 0\"/><path d=\"M12 8.2V3.8\"/><path d=\"m9.9 5.6 2.1-2.1 2.1 2.1\"/><path d=\"m5 10.4 1.7 1.7M19 10.4l-1.7 1.7\"/>",
+    "sunset": "<path d=\"M3.5 17.5h17\"/><path d=\"M7.8 17.5a4.2 4.2 0 0 1 8.4 0\"/><path d=\"M12 3.8v4.4\"/><path d=\"m9.9 6.4 2.1 2.1 2.1-2.1\"/><path d=\"m5 10.4 1.7 1.7M19 10.4l-1.7 1.7\"/>",
+    "wave": "<path d=\"M3 9.5c1.6 1.4 2.7 1.4 4.3 0 1.6 1.4 2.8 1.4 4.4 0 1.6 1.4 2.8 1.4 4.4 0 1.6 1.4 2.7 1.4 4.3 0\"/><path d=\"M3 15.5c1.6 1.4 2.7 1.4 4.3 0 1.6 1.4 2.8 1.4 4.4 0 1.6 1.4 2.8 1.4 4.4 0 1.6 1.4 2.7 1.4 4.3 0\"/>",
+    "drop": "<path d=\"M12 4.5c2.6 3.4 4.4 5.7 4.4 8.1a4.4 4.4 0 1 1-8.8 0c0-2.4 1.8-4.7 4.4-8.1Z\"/>",
   };
   function icon(name, cls) {
     var inner = ICONS[name];
@@ -206,7 +299,7 @@
   window.Oerall = { fmtDay: fmtDay, genre: genre, icon: icon };
 
   // ---- Reusable bits -------------------------------------------------------
-  function eventRow(ev) {
+  function eventRow(ev, opts) {
     var g = genre(ev.genre);
     return (
       '<button class="event-row" data-event="' + ev.id + '">' +
@@ -218,6 +311,9 @@
           '<div class="event-row__title">' + esc(ev.title) + '</div>' +
           '<div class="event-row__venue">' + icon('pin') + '<span>' + esc(ev.venue.name) + (ev.venue.area ? ' · ' + esc(ev.venue.area) : '') + '</span></div>' +
           '<span class="genre-tag" style="background:' + g.color + ';margin-top:12px;">' + g.label + '</span>' +
+          (opts && opts.conflict
+            ? '<span class="conflict-badge" title="Overlapt met een andere voorstelling">' + icon('warn') + 'overlapt</span>'
+            : '') +
         '</div>' +
         '<div class="event-row__tail">' +
           (ev.ticket ? '<span class="tix tix--has" title="Kaartje in bezit">' + icon('ticket') + '</span>' : '<span class="tix" title="Vrij toegankelijk">' + icon('free') + '</span>') +
@@ -250,12 +346,137 @@
     return '<div class="btn-row">' + buttons + '</div>';
   }
 
+  // ---- "Nu & straks" (live kaart tijdens het festival) ----------------------
+  // Chip met levende tijd: "nog 35 min" (lopend) of "over 2 uur" (straks).
+  // De ticker werkt deze in-place bij via data-live / data-live-id.
+  function liveChip(ev, mode, now) {
+    var txt = mode === "now"
+      ? relTimeLeft(eventEnd(ev), now)
+      : relTime(parseDateTime(ev.day, ev.start), now);
+    return '<span class="meta-chip meta-chip--rel" data-live="' + mode + '" data-live-id="' + esc(ev.id) + '"' + (txt ? '' : ' hidden') + '>' +
+      icon('hourglass') + ' <span data-rel-txt>' + esc(txt) + '</span></span>';
+  }
+  function nowNextSection(ev, mode, now, primary) {
+    var g = genre(ev.genre);
+    return (
+      '<div class="nc-sec">' +
+        '<div class="nc-sec__label">' + (mode === "now" ? '<span class="live-dot"></span>Nu bezig' : 'Straks') + '</div>' +
+        '<span class="genre-tag" style="background:' + g.color + '">' + g.label + '</span>' +
+        '<div class="next-card__title" style="margin-top:8px;">' + esc(ev.title) + '</div>' +
+        '<div class="next-card__artist">' + esc(ev.artist || "") + '</div>' +
+        '<div class="next-card__meta">' +
+          (ev.day !== todayIso(now) ? '<span class="meta-chip">' + icon('calendar') + ' ' + fmtDay(ev.day) + '</span>' : '') +
+          '<span class="meta-chip">' + icon('clock') + ' ' + esc(ev.start) + (ev.end ? '–' + esc(ev.end) : '') + '</span>' +
+          '<span class="meta-chip">' + icon('pin') + ' ' + esc(ev.venue.name) + '</span>' +
+          liveChip(ev, mode, now) +
+        '</div>' +
+        (primary ? routeButtons(ev) + whoChips(ev.attendees) : '') +
+      '</div>'
+    );
+  }
+  function nowNextCard(now) {
+    var label = '<div class="block-label"><span class="bar"></span>Nu &amp; straks</div>';
+    var nowEvs = currentEvents(now);
+    var up = upcomingEvent(now);
+    if (!nowEvs.length && !up) {
+      return label + '<div class="card">Alles gespeeld — tijd voor het strand! 🏖️</div>';
+    }
+    // route/wie-knoppen alleen bij de "belangrijkste" sectie, anders wordt
+    // de kaart een muur van knoppen
+    var primaryId = nowEvs.length ? nowEvs[0].id : up.id;
+    var sections = nowEvs.map(function (ev) {
+      return nowNextSection(ev, "now", now, ev.id === primaryId);
+    }).join("");
+    if (up) sections += nowNextSection(up, "next", now, up.id === primaryId);
+    var dayNo = Math.floor((now - parseDateTime(D.festival.start, "00:00")) / 864e5) + 1;
+    return (
+      label +
+      '<div class="next-card">' +
+        '<div class="next-card__strip"><span>Live op het eiland</span><span>Dag ' + dayNo + '</span></div>' +
+        '<div class="next-card__body">' + sections + '</div>' +
+      '</div>'
+    );
+  }
+
+  // ---- "Het eiland vandaag": getijden + boten -------------------------------
+  function ferryDayType(d) {
+    var g = d.getDay();
+    return g === 0 ? "zo" : g === 6 ? "za" : "ma-vr";
+  }
+  // Eerstvolgende afvaarten in een richting; vult aan met morgenochtend.
+  function nextFerries(dirKey, now, count) {
+    var F = D.ferry;
+    if (!F || !F.schedule || !F.schedule[dirKey]) return [];
+    var out = [];
+    [0, 1].forEach(function (dayOffset) {
+      if (out.length >= count && dayOffset > 0) return;
+      var d = new Date(now.getTime() + dayOffset * 864e5);
+      (F.schedule[dirKey][ferryDayType(d)] || []).forEach(function (s) {
+        if (parseDateTime(todayIso(d), s.time) > now) {
+          out.push({ time: s.time, type: s.type, tomorrow: dayOffset > 0 });
+        }
+      });
+    });
+    return out.slice(0, count);
+  }
+  function ferryCardHtml(now) {
+    var F = D.ferry;
+    if (!F || !F.schedule) return "";
+    var dirs = [
+      { key: "terschelling-harlingen", label: "West → Harlingen" },
+      { key: "harlingen-terschelling", label: "Harlingen → West" },
+    ];
+    // verberg het kaartje zolang de dienstregeling nog niet is ingevuld
+    var filled = dirs.some(function (dir) {
+      var sched = F.schedule[dir.key] || {};
+      return Object.keys(sched).some(function (k) { return (sched[k] || []).length; });
+    });
+    if (!filled) return "";
+    var rows = dirs.map(function (dir) {
+      var deps = nextFerries(dir.key, now, 2);
+      var v = deps.length
+        ? deps.map(function (dp) {
+            return (dp.tomorrow ? 'morgen ' : '') + esc(dp.time) +
+              ' <small class="ferry-type">' + esc(dp.type) + '</small>';
+          }).join(' · ')
+        : "–";
+      return '<div class="kv"><span class="k">' + dir.label + '</span><span class="v">' + v + '</span></div>';
+    }).join("");
+    return (
+      '<div class="card island-card">' +
+        '<div class="island-card__head">' + icon('ferry') + 'Volgende boten</div>' +
+        rows +
+        '<p class="island-card__note">' + esc(F.note || "") +
+          (D.links.ferry ? ' <a target="_blank" rel="noopener" href="' + esc(D.links.ferry.url) + '">Dienstregeling →</a>' : '') +
+        '</p>' +
+      '</div>'
+    );
+  }
+  function islandBlockHtml(now) {
+    var ferry = ferryCardHtml(now);
+    var tides =
+      '<div class="card island-card" id="tides" hidden>' +
+        '<div class="island-card__head">' + icon('wave') + 'Getijden <span class="island-card__sub">West-Terschelling</span></div>' +
+        '<div class="kv"><span class="k">Hoogwater</span><span class="v" data-tide="high">–</span></div>' +
+        '<div class="kv"><span class="k">Laagwater</span><span class="v" data-tide="low">–</span></div>' +
+        '<p class="island-card__note" data-tide="note" hidden></p>' +
+      '</div>';
+    // zonder boot-data én zonder getijden blijft het hele blok verborgen;
+    // paintTides() maakt het zichtbaar zodra er getijden zijn
+    return (
+      '<div id="island-block"' + (ferry ? '' : ' hidden') + '>' +
+        '<div class="block-label"><span class="bar"></span>Het eiland vandaag</div>' +
+        tides + ferry +
+      '</div>'
+    );
+  }
+
   // ---- Pages ---------------------------------------------------------------
   function pageToday() {
-    var now = new Date();
+    var now = appNow();
     var start = parseDateTime(D.festival.start, "00:00");
     var end = parseDateTime(D.festival.end, "23:59");
-    var ne = nextEvent(now);
+    var live = now >= start && now <= end;
 
     // Hero: countdown or "live"
     var heroExtra;
@@ -291,53 +512,64 @@
         '</div>' +
       '</section>';
 
-    // Weerkaart (open-meteo) — wordt na render asynchroon gevuld door loadWeather().
+    // Weerkaart (open-meteo) — wordt na render asynchroon gevuld door
+    // loadWeather(): huidig weer, zonsopgang/-ondergang en de urenstrip.
     var weatherHtml =
       '<div class="weather" id="weather" hidden>' +
         '<div class="weather__ico" data-w="ico">' + icon('w-default') + '</div>' +
         '<div class="weather__main">' +
           '<div class="weather__temp"><span data-w="temp">–</span>°<span class="weather__label" data-w="label"></span></div>' +
           '<div class="weather__wind" data-w="wind"></div>' +
+          '<div class="weather__sun" data-w="sun" hidden></div>' +
         '</div>' +
-        '<div class="weather__place">' + esc(D.festival.island) + '</div>' +
-      '</div>';
+        '<div class="weather__side">' +
+          '<div class="weather__place">' + esc(D.festival.island) + '</div>' +
+          '<button class="weather__refresh" type="button" data-w-refresh aria-label="Weer en getijden verversen">' + icon('refresh') + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hours" id="hours" hidden></div>';
 
-    // Next event card
+    // Tijdens het festival: "Nu & straks". Ervoor: de vertrouwde
+    // "Volgende voorstelling". Erna: strandmodus.
     var nextHtml;
-    if (ne) {
-      var g = genre(ne.genre);
-      nextHtml =
-        '<div class="block-label"><span class="bar"></span>Volgende voorstelling</div>' +
-        '<div class="next-card">' +
-          '<div class="next-card__strip"><span>Hierna op de planning</span><span class="strip-tix">' + (ne.ticket ? icon('ticket') + ' kaartje in bezit' : icon('free') + ' vrij') + '</span></div>' +
-          '<div class="next-card__body">' +
-            '<span class="genre-tag" style="background:' + g.color + '">' + g.label + '</span>' +
-            '<div class="next-card__title" style="margin-top:8px;">' + esc(ne.title) + '</div>' +
-            '<div class="next-card__artist">' + esc(ne.artist || "") + '</div>' +
-            '<div class="next-card__meta">' +
-              '<span class="meta-chip">' + icon('calendar') + ' ' + fmtDay(ne.day) + '</span>' +
-              '<span class="meta-chip">' + icon('clock') + ' ' + esc(ne.start) + (ne.end ? '–' + esc(ne.end) : '') + '</span>' +
-              '<span class="meta-chip">' + icon('pin') + ' ' + esc(ne.venue.name) + '</span>' +
-              '<span class="meta-chip meta-chip--rel" data-rel="next"' + (relTime(parseDateTime(ne.day, ne.start), now) ? '' : ' hidden') + '>' + icon('hourglass') + ' <span data-rel-txt>' + esc(relTime(parseDateTime(ne.day, ne.start), now)) + '</span></span>' +
-            '</div>' +
-            routeButtons(ne) +
-            whoChips(ne.attendees) +
-          '</div>' +
-        '</div>';
+    if (live) {
+      nextHtml = nowNextCard(now);
     } else {
-      nextHtml = '<div class="card">Geen geplande voorstellingen meer. Tijd voor het strand? 🏖️</div>';
+      var ne = nextEvent(now);
+      if (ne) {
+        var g = genre(ne.genre);
+        nextHtml =
+          '<div class="block-label"><span class="bar"></span>Volgende voorstelling</div>' +
+          '<div class="next-card">' +
+            '<div class="next-card__strip"><span>Hierna op de planning</span><span class="strip-tix">' + (ne.ticket ? icon('ticket') + ' kaartje in bezit' : icon('free') + ' vrij') + '</span></div>' +
+            '<div class="next-card__body">' +
+              '<span class="genre-tag" style="background:' + g.color + '">' + g.label + '</span>' +
+              '<div class="next-card__title" style="margin-top:8px;">' + esc(ne.title) + '</div>' +
+              '<div class="next-card__artist">' + esc(ne.artist || "") + '</div>' +
+              '<div class="next-card__meta">' +
+                '<span class="meta-chip">' + icon('calendar') + ' ' + fmtDay(ne.day) + '</span>' +
+                '<span class="meta-chip">' + icon('clock') + ' ' + esc(ne.start) + (ne.end ? '–' + esc(ne.end) : '') + '</span>' +
+                '<span class="meta-chip">' + icon('pin') + ' ' + esc(ne.venue.name) + '</span>' +
+                liveChip(ne, "next", now) +
+              '</div>' +
+              routeButtons(ne) +
+              whoChips(ne.attendees) +
+            '</div>' +
+          '</div>';
+      } else {
+        nextHtml = '<div class="card">Geen geplande voorstellingen meer. Tijd voor het strand? 🏖️</div>';
+      }
     }
 
     // Today's schedule (or first festival day if not started)
-    var focusDay = (now >= start && now <= end)
-      ? (now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0"))
-      : D.festival.start;
+    var focusDay = live ? todayIso(now) : D.festival.start;
+    var conflicts = conflictIds();
     var todays = sortedEvents().filter(function (e) { return e.day === focusDay; });
-    var schedLabel = (now >= start && now <= end) ? "Vandaag" : ("Openingsdag · " + fmtDay(D.festival.start));
+    var schedLabel = live ? "Vandaag" : ("Openingsdag · " + fmtDay(D.festival.start));
     var schedHtml =
       '<div class="block-label"><span class="bar"></span>' + schedLabel + '</div>' +
       (todays.length
-        ? '<div class="event-list">' + todays.map(eventRow).join("") + '</div>'
+        ? '<div class="event-list">' + todays.map(function (e) { return eventRow(e, { conflict: conflicts[e.id] }); }).join("") + '</div>'
         : '<div class="card muted">Niets gepland voor deze dag — kijk in het <a href="#/events">programma</a>.</div>');
 
     // Quick links row
@@ -347,7 +579,7 @@
         link(D.links.oerol) + link(D.links.krant) + link(D.links.program) + link(D.links.tickets) +
       '</div>';
 
-    return hero + weatherHtml + nextHtml + schedHtml + ql + galleryHtml(3);
+    return hero + weatherHtml + nextHtml + islandBlockHtml(now) + schedHtml + ql + galleryHtml(3);
   }
 
   // ---- Weer ophalen + tonen ------------------------------------------------
@@ -366,6 +598,57 @@
     box.hidden = false;
   }
 
+  // Zonsopgang/-ondergang + gouden uur (zonsondergang − 1 uur) in de weerkaart.
+  function paintSun(daily) {
+    var el = document.querySelector('[data-w="sun"]');
+    if (!el || !daily || !daily.sunrise || !daily.sunrise.length) return;
+    var iso = todayIso();
+    var idx = 0;
+    for (var i = 0; i < daily.sunrise.length; i++) {
+      if (String(daily.sunrise[i]).indexOf(iso) === 0) { idx = i; break; }
+    }
+    var rise = parseIsoLocal(daily.sunrise[idx]);
+    var set = parseIsoLocal(daily.sunset[idx]);
+    el.innerHTML =
+      icon('sunrise') + ' ' + fmtClock(rise) + ' &nbsp; ' + icon('sunset') + ' ' + fmtClock(set) +
+      ' &nbsp; <span class="weather__golden">gouden uur v.a. ' + fmtClock(new Date(set.getTime() - 36e5)) + '</span>';
+    el.hidden = false;
+  }
+
+  // Urenstrip: de komende 18 uur (tijd, icoon, temperatuur, regenkans).
+  function paintHours(hourly) {
+    var box = document.getElementById("hours");
+    if (!box || !hourly || !hourly.time || !hourly.time.length) return;
+    var now = appNow();
+    var lastDay = todayIso(now);
+    var cells = "", count = 0;
+    for (var i = 0; i < hourly.time.length && count < 18; i++) {
+      var t = parseIsoLocal(hourly.time[i]);
+      if (t.getTime() + 36e5 <= now.getTime()) continue; // uur is al voorbij
+      var dayIso = String(hourly.time[i]).split("T")[0];
+      var label = fmtClock(t);
+      if (dayIso !== lastDay) { label = fmtDay(dayIso).split(" ")[0] + " " + label; lastDay = dayIso; }
+      var wc = weatherCode(hourly.code[i]);
+      var pop = hourly.pop ? hourly.pop[i] : null;
+      cells +=
+        '<div class="hour-cell">' +
+          '<div class="t">' + label + '</div>' +
+          icon(wc.icon) +
+          '<div class="tmp">' + Math.round(hourly.temp[i]) + '°</div>' +
+          '<div class="pop' + (pop > 0 ? '' : ' is-dry') + '">' + icon('drop') + ' ' + (pop == null ? '–' : pop + '%') + '</div>' +
+        '</div>';
+      count++;
+    }
+    box.innerHTML = cells;
+    box.hidden = !cells;
+  }
+
+  function paintWeatherAll(w, stale) {
+    if (w.current) paintWeather(w.current, stale);
+    if (w.hourly) paintHours(w.hourly);
+    if (w.daily) paintSun(w.daily);
+  }
+
   function loadWeather() {
     var lat = (D.festival && D.festival.lat) || D.home.lat;
     var lng = (D.festival && D.festival.lng) || D.home.lng;
@@ -374,10 +657,13 @@
     // Toon meteen de laatst bekende waarde (offline-vriendelijk), anders een
     // wachtsymbool (spinner) terwijl we de verwachting ophalen.
     var cached = null;
-    try { cached = JSON.parse(localStorage.getItem("oerall.weather") || "null"); } catch (e) {}
-    var hadCache = !!(cached && cached.temp != null);
+    try {
+      localStorage.removeItem("oerall.weather"); // oude cache-vorm (alleen 'current')
+      cached = JSON.parse(localStorage.getItem("oerall.weather2") || "null");
+    } catch (e) {}
+    var hadCache = !!(cached && cached.current);
     if (hadCache) {
-      paintWeather(cached, true);
+      paintWeatherAll(cached, true);
     } else {
       var box0 = document.getElementById("weather");
       if (box0) {
@@ -387,15 +673,29 @@
       }
     }
 
+    // Eén gecombineerde call: huidig weer + uren + zonsopgang/-ondergang.
+    // forecast_days=2 zodat de urenstrip over middernacht heen kan kijken.
     var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lng +
       "&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m" +
+      "&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m" +
+      "&daily=sunrise,sunset&forecast_days=2" +
       "&wind_speed_unit=ms&timezone=Europe%2FAmsterdam";
     fetch(url).then(function (r) { return r.json(); }).then(function (data) {
       var c = data && data.current;
       if (!c) return;
-      var w = { temp: c.temperature_2m, code: c.weather_code, wind: c.wind_speed_10m, dir: c.wind_direction_10m };
-      try { localStorage.setItem("oerall.weather", JSON.stringify(w)); } catch (e) {}
-      paintWeather(w, false);
+      var w = {
+        current: { temp: c.temperature_2m, code: c.weather_code, wind: c.wind_speed_10m, dir: c.wind_direction_10m },
+        hourly: data.hourly ? {
+          time: data.hourly.time,
+          temp: data.hourly.temperature_2m,
+          code: data.hourly.weather_code,
+          pop: data.hourly.precipitation_probability,
+        } : null,
+        daily: data.daily ? { sunrise: data.daily.sunrise, sunset: data.daily.sunset } : null,
+        fetchedAt: Date.now(),
+      };
+      try { localStorage.setItem("oerall.weather2", JSON.stringify(w)); } catch (e) {}
+      paintWeatherAll(w, false);
     }).catch(function () {
       // offline: gecachte waarde blijft staan; zonder cache tonen we een rustige
       // 'offline'-staat i.p.v. de kaart te laten verdwijnen.
@@ -410,16 +710,133 @@
     });
   }
 
+  // ---- Getijden (open-meteo marine API, met statische terugvaltabel) -------
+  var TIDE_KEY = "oerall.tides";
+  var TIDE_TTL = 6 * 36e5; // getijden zijn deterministisch — 6 uur cache volstaat
+
+  // Lokale extrema van de uurlijkse zeestand -> hoog-/laagwatermomenten.
+  // Parabolische verfijning rond elk extremum maakt het ± 10–15 min nauwkeurig.
+  function tideExtremes(times, heights) {
+    var out = [];
+    for (var i = 1; i < heights.length - 1; i++) {
+      var p = heights[i - 1], h = heights[i], n = heights[i + 1];
+      if (p == null || h == null || n == null) continue;
+      var isHigh = h > p && h >= n;
+      var isLow = h < p && h <= n;
+      if (!isHigh && !isLow) continue;
+      var denom = p - 2 * h + n;
+      var dt = denom ? 0.5 * (p - n) / denom : 0;
+      if (dt > 1) dt = 1;
+      if (dt < -1) dt = -1;
+      out.push({ t: parseIsoLocal(times[i]).getTime() + dt * 36e5, type: isHigh ? "high" : "low" });
+    }
+    return out;
+  }
+  function staticTideExtremes() {
+    var out = [];
+    (D.tides || []).forEach(function (row) {
+      (row.high || []).forEach(function (t) { out.push({ t: parseDateTime(row.day, t).getTime(), type: "high" }); });
+      (row.low || []).forEach(function (t) { out.push({ t: parseDateTime(row.day, t).getTime(), type: "low" }); });
+    });
+    out.sort(function (a, b) { return a.t - b.t; });
+    return out;
+  }
+  function paintTides(extremes, suffix) {
+    var card = document.getElementById("tides");
+    if (!card || !extremes || !extremes.length) return false;
+    var nowMs = appNow().getTime();
+    var painted = false;
+    ["high", "low"].forEach(function (type) {
+      var el = card.querySelector('[data-tide="' + type + '"]');
+      if (!el) return;
+      var x = null;
+      for (var i = 0; i < extremes.length; i++) {
+        if (extremes[i].type === type && extremes[i].t > nowMs) { x = extremes[i]; break; }
+      }
+      if (!x) { el.textContent = "–"; return; }
+      painted = true;
+      var d = new Date(x.t);
+      var dayPrefix = todayIso(d) !== todayIso(new Date(nowMs)) ? fmtDay(todayIso(d)).split(" ")[0] + " " : "";
+      var rel = relTime(d, new Date(nowMs));
+      el.innerHTML = "rond " + dayPrefix + fmtClock(d) + (rel ? ' <span class="muted">' + esc(rel) + "</span>" : "");
+    });
+    if (!painted) return false;
+    var note = card.querySelector('[data-tide="note"]');
+    if (note) { note.textContent = suffix || ""; note.hidden = !suffix; }
+    card.hidden = false;
+    var block = document.getElementById("island-block");
+    if (block) block.hidden = false;
+    return true;
+  }
+  function loadTides(force) {
+    if (!document.getElementById("tides")) return;
+    var cached = null;
+    try { cached = JSON.parse(localStorage.getItem(TIDE_KEY) || "null"); } catch (e) {}
+    var hasCache = !!(cached && cached.extremes && cached.extremes.length);
+    if (hasCache && !force && Date.now() - (cached.fetchedAt || 0) < TIDE_TTL) {
+      paintTides(cached.extremes);
+      return;
+    }
+    // terugvalketen: verse API → cache ("laatst bekend") → tabel uit data.js;
+    // zonder dit alles blijft het kaartje gewoon verborgen
+    if (hasCache) paintTides(cached.extremes, "laatst bekend");
+    else paintTides(staticTideExtremes(), "uit de getijdentabel");
+
+    var lat = D.festival.marineLat != null ? D.festival.marineLat : D.festival.lat;
+    var lng = D.festival.marineLng != null ? D.festival.marineLng : D.festival.lng;
+    if (lat == null || lng == null) return;
+    var url = "https://marine-api.open-meteo.com/v1/marine?latitude=" + lat + "&longitude=" + lng +
+      "&hourly=sea_level_height_msl&forecast_days=3&cell_selection=sea&timezone=Europe%2FAmsterdam";
+    fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+      var h = data && data.hourly;
+      if (!h || !h.time || !h.sea_level_height_msl) return;
+      var ex = tideExtremes(h.time, h.sea_level_height_msl);
+      if (!ex.length) return;
+      try { localStorage.setItem(TIDE_KEY, JSON.stringify({ extremes: ex, fetchedAt: Date.now() })); } catch (e) {}
+      paintTides(ex);
+    }).catch(function () { /* offline: cache of tabel staat al */ });
+  }
+
+  // Handmatig verversen (knopje in de weerkaart): weer + getijden opnieuw.
+  function refreshIslandData(btn) {
+    if (btn) {
+      btn.innerHTML = icon("spinner", "ic--spin");
+      setTimeout(function () { btn.innerHTML = icon("refresh"); }, 1500);
+    }
+    loadWeather();
+    loadTides(true);
+  }
+
   // ---- Live ticker voor 'Vandaag' ------------------------------------------
+  // Handtekening van de live-toestand: welke voorstellingen zijn nu bezig en
+  // welke komt hierna. Verandert die, dan moet de kaart opnieuw opgebouwd.
+  function liveSignature(now) {
+    var ids = currentEvents(now).map(function (e) { return e.id; }).join(",");
+    var up = upcomingEvent(now);
+    return ids + "|" + (up ? up.id : "");
+  }
+  // Werk alle levende tijd-chips ("nog 35 min" / "over 2 uur") in-place bij.
+  function tickLiveChips(now) {
+    document.querySelectorAll("[data-live]").forEach(function (chip) {
+      var ev = byId(chip.getAttribute("data-live-id"));
+      if (!ev) return;
+      var txt = chip.getAttribute("data-live") === "now"
+        ? relTimeLeft(eventEnd(ev), now)
+        : relTime(parseDateTime(ev.day, ev.start), now);
+      var t = chip.querySelector("[data-rel-txt]");
+      if (t) t.textContent = txt;
+      chip.hidden = !txt;
+    });
+  }
   function startTodayTicker() {
     if (tickTimer) clearInterval(tickTimer);
     var startMs = parseDateTime(D.festival.start, "00:00").getTime();
-    var preStart = Date.now() < startMs;       // tonen we de aftel-hero?
-    var ne0 = nextEvent(new Date());
-    var lastNextId = ne0 ? ne0.id : null;       // welke voorstelling staat er nu?
+    var endMs = parseDateTime(D.festival.end, "23:59").getTime();
+    var preStart = appNow().getTime() < startMs; // tonen we de aftel-hero?
+    var lastSig = liveSignature(appNow());
 
     tickTimer = setInterval(function () {
-      var now = new Date();
+      var now = appNow();
 
       // 1) Countdown loopt af -> hero omklappen naar 'live'. Eenmalig.
       if (preStart && now.getTime() >= startMs) { render(); return; }
@@ -438,21 +855,14 @@
         return;
       }
 
-      // 3) Tijdens het festival: wisselt de volgende voorstelling, dan ververst
-      //    de hele next-card; anders alleen de relatieve-tijd-chip bijwerken.
-      var ne = nextEvent(now);
-      var curId = ne ? ne.id : null;
-      if (curId !== lastNextId) { render(); return; }
-      var chip = document.querySelector('[data-rel="next"]');
-      if (chip && ne) {
-        var rel = relTime(parseDateTime(ne.day, ne.start), now);
-        if (rel) {
-          chip.querySelector("[data-rel-txt]").textContent = rel;
-          chip.hidden = false;
-        } else {
-          chip.hidden = true;
-        }
-      }
+      // 3) Na het festival valt er niets meer te tikken.
+      if (now.getTime() > endMs) return;
+
+      // 4) Tijdens het festival: start of eindigt er een voorstelling, dan
+      //    de hele "Nu & straks"-kaart verversen; anders alleen de chips.
+      var sig = liveSignature(now);
+      if (sig !== lastSig) { render(); return; }
+      tickLiveChips(now);
     }, 1000);
   }
 
@@ -462,10 +872,57 @@
       '<span class="ql__ico">' + ico + '</span><span>' + esc(l.label) + '</span></a>';
   }
 
+  // Verbindingsstuk in de dagtijdlijn: fietstijd + vrije tijd tussen twee
+  // opeenvolgende voorstellingen, of een waarschuwing als ze overlappen.
+  function timelineGap(a, b) {
+    var gapMin = Math.round((parseDateTime(b.day, b.start) - eventEnd(a)) / 6e4);
+    if (gapMin < 0) {
+      return '<div class="tl-gap tl-gap--warn">' + icon('warn') + ' overlapt ' + fmtDur(-gapMin) + '</div>';
+    }
+    var sameVenue = a.venue && b.venue && a.venue.name === b.venue.name;
+    var bikeMin = sameVenue ? null : cycleMinutes(a.venue, b.venue);
+    var parts = [];
+    if (bikeMin != null) parts.push(icon('bike') + ' ± ' + bikeMin + ' min fietsen');
+    parts.push(gapMin === 0 ? 'direct aansluitend' : fmtDur(gapMin) + ' vrij');
+    var krap = bikeMin != null && bikeMin > gapMin;
+    return '<div class="tl-gap' + (krap ? ' tl-gap--warn' : '') + '">' +
+      parts.join(' <span class="tl-gap__sep">·</span> ') +
+      (krap ? ' <span class="tl-gap__sep">·</span> ' + icon('warn') + ' krap!' : '') +
+      '</div>';
+  }
+
+  // Lijst voor de Programma-pagina. Bij één actieve dag wordt het een
+  // tijdlijn met vrije gaten en fietstijden; "Alles" en zoeken blijven vlak.
+  function eventsListHtml(shown, active, conflicts) {
+    if (!shown.length) return '<div class="card muted">Geen voorstellingen op deze dag.</div>';
+    var rows;
+    if (active !== "all") {
+      rows = "";
+      // aanlooptijd vanaf het huis naar de eerste voorstelling van de dag
+      var firstBike = cycleMinutes(D.home, shown[0].venue);
+      if (firstBike != null) {
+        rows += '<div class="tl-gap">' + icon('bike') + ' ± ' + firstBike + ' min fietsen vanaf ' + esc(D.home.name) + '</div>';
+      }
+      shown.forEach(function (ev, i) {
+        if (i > 0) rows += timelineGap(shown[i - 1], ev);
+        rows += eventRow(ev, { conflict: conflicts[ev.id] });
+      });
+    } else {
+      rows = shown.map(function (ev) { return eventRow(ev, { conflict: conflicts[ev.id] }); }).join("");
+    }
+    var html = '<div class="event-list">' + rows + '</div>';
+    if (active !== "all") {
+      html += '<div class="btn-row"><button class="btn btn--ghost btn--block" data-ics-day="' + esc(active) + '">' +
+        icon('calendar') + ' Hele dag naar agenda</button></div>';
+    }
+    return html;
+  }
+
   function pageEvents(params) {
     var days = festivalDays();
     var active = (params && params.day) || "all";
     var all = sortedEvents();
+    var conflicts = conflictIds();
 
     var pills = '<button class="day-pill ' + (active === "all" ? "is-active" : "") + '" data-day="all">Alles<small>' + all.length + ' items</small></button>';
     days.forEach(function (iso) {
@@ -476,16 +933,45 @@
         fmtDay(iso).split(" ")[0] + ' ' + p[2] + '<small>' + cnt + ' item' + (cnt > 1 ? "s" : "") + '</small></button>';
     });
 
+    var search =
+      '<div class="search-box">' + icon('search') +
+        '<input id="event-search" type="search" placeholder="Zoek op titel, artiest of locatie…" autocomplete="off" aria-label="Zoek in het programma">' +
+      '</div>';
+
     var shown = active === "all" ? all : all.filter(function (e) { return e.day === active; });
-    var list = shown.length
-      ? '<div class="event-list">' + shown.map(eventRow).join("") + '</div>'
-      : '<div class="card muted">Geen voorstellingen op deze dag.</div>';
 
     return (
       banner("events", 'Ons <em>programma</em>') +
+      search +
       '<div class="day-filter">' + pills + '</div>' +
-      list
+      '<div id="events-list">' + eventsListHtml(shown, active, conflicts) + '</div>'
     );
+  }
+
+  // Zoekveld op Programma: filtert client-side op titel/artiest/locatie.
+  // De zoekterm leeft alleen in het veld zelf (geen hash-state nodig).
+  function wireEventSearch(active) {
+    var input = document.getElementById("event-search");
+    var listBox = document.getElementById("events-list");
+    if (!input || !listBox) return;
+    var all = sortedEvents();
+    var conflicts = conflictIds();
+    var base = active === "all" ? all : all.filter(function (e) { return e.day === active; });
+    input.addEventListener("input", function () {
+      var q = input.value.toLowerCase().trim();
+      if (!q) {
+        listBox.innerHTML = eventsListHtml(base, active, conflicts);
+        return;
+      }
+      var hits = base.filter(function (e) {
+        return (e.title + " " + (e.artist || "") + " " + e.venue.name + " " + (e.venue.area || ""))
+          .toLowerCase().indexOf(q) !== -1;
+      });
+      // tijdens het zoeken een vlakke lijst — tijdlijn-gaten zouden misleiden
+      listBox.innerHTML = hits.length
+        ? '<div class="event-list">' + hits.map(function (ev) { return eventRow(ev, { conflict: conflicts[ev.id] }); }).join("") + '</div>'
+        : '<div class="card muted">Niets gevonden voor "' + esc(q) + '".</div>';
+    });
   }
 
   function pageEventDetail(id) {
@@ -657,13 +1143,17 @@
     // Page-specific wiring
     if (r.top === "today") {
       loadWeather();
+      loadTides();
       startTodayTicker();
+    }
+    if (r.top === "events") {
+      wireEventSearch(r.query.day || "all");
     }
     if (r.top === "map") {
       window.OerallMap.init();
       var btn = document.getElementById("route-next");
       if (btn) btn.addEventListener("click", function () {
-        var ne = nextEvent(new Date());
+        var ne = nextEvent(appNow());
         if (ne) { window.OerallMap.routeTo(ne.venue); btn.innerHTML = icon('bike') + " Route naar: " + esc(ne.title); }
       });
       // focus a specific venue if requested
@@ -723,36 +1213,43 @@
     return String(s == null ? "" : s)
       .replace(/\\/g, "\\\\").replace(/[,;]/g, "\\$&").replace(/\r?\n/g, "\\n");
   }
-  function addToCalendar(id) {
-    var ev = byId(id);
-    if (!ev) return;
-    var startDt = parseDateTime(ev.day, ev.start);
-    var endDt = ev.end ? parseDateTime(ev.day, ev.end) : new Date(startDt.getTime() + 36e5);
-    var ics = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//Oerall//Oerol " + D.festival.year + "//NL",
-      "CALSCALE:GREGORIAN",
+  // Eén VEVENT-blok per voorstelling; meerdere blokken in één VCALENDAR is
+  // geldig, dus dezelfde bouwsteen dient ook de hele-dag-export.
+  function veventLines(ev) {
+    return [
       "BEGIN:VEVENT",
       "UID:" + ev.id + "@oerall",
       "DTSTAMP:" + icsUtc(new Date()),
-      "DTSTART:" + icsLocal(startDt),
-      "DTEND:" + icsLocal(endDt),
+      "DTSTART:" + icsLocal(parseDateTime(ev.day, ev.start)),
+      "DTEND:" + icsLocal(eventEnd(ev)),
       "SUMMARY:" + icsEscape(ev.title + (ev.artist ? " — " + ev.artist : "")),
       "LOCATION:" + icsEscape(ev.venue.name + (ev.venue.area ? " (" + ev.venue.area + ")" : "")),
       "DESCRIPTION:" + icsEscape(ev.description || ""),
       "END:VEVENT",
-      "END:VCALENDAR",
-    ].join("\r\n");
-    var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    ];
+  }
+  function downloadIcs(veventArrays, filename) {
+    var lines = ["BEGIN:VCALENDAR", "VERSION:2.0",
+      "PRODID:-//Oerall//Oerol " + D.festival.year + "//NL", "CALSCALE:GREGORIAN"];
+    veventArrays.forEach(function (v) { lines = lines.concat(v); });
+    lines.push("END:VCALENDAR");
+    var blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = ev.id + ".ics";
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function addToCalendar(id) {
+    var ev = byId(id);
+    if (ev) downloadIcs([veventLines(ev)], ev.id + ".ics");
+  }
+  function addDayToCalendar(day) {
+    var evs = sortedEvents().filter(function (e) { return e.day === day; });
+    if (evs.length) downloadIcs(evs.map(veventLines), "oerol-" + day + ".ics");
   }
 
   // Event delegation for clicks on event rows / back button
@@ -761,6 +1258,10 @@
     if (copy) { copyText(copy.getAttribute("data-copy"), copy); return; }
     var ics = e.target.closest("[data-ics]");
     if (ics) { addToCalendar(ics.getAttribute("data-ics")); return; }
+    var icsDay = e.target.closest("[data-ics-day]");
+    if (icsDay) { addDayToCalendar(icsDay.getAttribute("data-ics-day")); return; }
+    var wRefresh = e.target.closest("[data-w-refresh]");
+    if (wRefresh) { refreshIslandData(wRefresh); return; }
     var share = e.target.closest("[data-share]");
     if (share) { shareEvent(share.getAttribute("data-share")); return; }
     var row = e.target.closest("[data-event]");

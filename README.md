@@ -3,8 +3,8 @@
 Our go-to companion app for **Oerol 2026** on Terschelling (45th edition, **12–21 June 2026**).
 One beautiful, fun, mobile-first place for everything we need this festival:
 
-- ☀️ **Vandaag** — a **live ticking countdown** to the festival, today's **weather & wind** for Terschelling, the **next event** (with "over X uur") and a one-tap bike route, and today's schedule.
-- 🎭 **Programma** — the events we're visiting, filterable per day, each with details, who's going, and a **share** button.
+- ☀️ **Vandaag** — a **live ticking countdown** to the festival, today's **weather & wind** for Terschelling (with an **hourly strip**, **sunrise/sunset + golden hour** and a refresh button), and today's schedule. During the festival the countdown becomes **"Nu & straks"**: what's playing right now ("nog 35 min") and what's up next. Plus **"Het eiland vandaag"**: the next **high/low tide** and the next **ferries** in both directions.
+- 🎭 **Programma** — the events we're visiting, **searchable** and filterable per day. A selected day becomes a **timeline** with free-time gaps, estimated **cycling times** between venues and **overlap warnings**, plus a one-tap **"hele dag naar agenda"** (.ics) export.
 - 🗺️ **Kaart** — Google Maps of Terschelling: tap a venue (or the house) to see its **exact** spot by address, with **open in Google Maps** and a **route to the next event**.
 - 🏠 **Thuis** — everything about the house we sleep in: address, wifi, house rules, what's nearby, emergency numbers.
 - ✨ **Meer** — quick links to the official **Oerol website**, the daily **Oerol Krant**, tickets, the ferry and more, plus the full **Terschelling in beeld** art collection.
@@ -41,10 +41,19 @@ python3 -m http.server 8000
   - `attendees` are just names — who from the crew is going.
 - `crew` — the group's names.
 - `links` — official URLs (update if any change).
+- `ferry` — the Doeksen timetable (Harlingen ↔ West-Terschelling). **Fill in the June times from
+  rederij-doeksen.nl**; the "Volgende boten" card stays hidden while the lists are empty.
+- `tides` — optional static tide table (from getij.nl, station West-Terschelling) used as an
+  offline fallback. Online, tides come from the free open-meteo **marine API** automatically.
 - `gallery` — the **Terschelling in beeld** plates: each `{ img, title, caption }` points to an
   SVG in `img/` and shows a museum-style label. Add or reword captions freely.
 
 Save and reload — no build step.
+
+> **Tip — preview festival mode:** in the browser console run
+> `localStorage.setItem("oerall.debugNow", "2026-06-18T14:30")` and reload to see the app as it
+> will look mid-festival (Nu & straks, dag-badge, timeline). Remove with
+> `localStorage.removeItem("oerall.debugNow")`.
 
 > The current events/home are **realistic samples** so the app looks great immediately.
 > Swap in our real plans before we leave. Double-check the **Oerol Krant** URL in `links` against
